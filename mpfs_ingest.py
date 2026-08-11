@@ -216,12 +216,14 @@ def run(mode="daily", limit=None, sleep=1.2):
     since = last_watermark(c) if mode == "daily" else None
     print(f"Mode={mode}  since={since}  key={'REAL' if KEY!='DEMO_KEY' else 'DEMO'}", flush=True)
     ids = list_comment_ids(limit=limit, since=since)
-    # Skip comments already stored with an unchanged lastModifiedDate — in BOTH modes.
+    # Skip comments already stored — by ID, in BOTH modes. The seed corpus has NULL
+    # last_modified_date, so a timestamp comparison would re-fetch everything; skipping by
+    # ID never re-spends the API budget (or wipes LLM tags) on comments we already have.
     # Never re-spend the API request budget on comments we already have unchanged; only
     # genuinely new (or changed) comments get a detail fetch. This keeps daily runs tiny.
     existing = {r[0]: r[1] for r in c.execute("SELECT id, last_modified_date FROM comments").fetchall()}
     before = len(ids)
-    ids = [(cid, lm) for (cid, lm) in ids if existing.get(cid) != lm]
+    ids = [(cid, lm) for (cid, lm) in ids if cid not in existing]
     print(f"{before} listed; {before - len(ids)} unchanged (skipped); {len(ids)} to fetch", flush=True)
     new = upd = natt = 0
     for i, (cid, _) in enumerate(ids, 1):
