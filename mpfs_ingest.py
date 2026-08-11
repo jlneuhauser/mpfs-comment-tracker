@@ -216,15 +216,13 @@ def run(mode="daily", limit=None, sleep=1.2):
     since = last_watermark(c) if mode == "daily" else None
     print(f"Mode={mode}  since={since}  key={'REAL' if KEY!='DEMO_KEY' else 'DEMO'}", flush=True)
     ids = list_comment_ids(limit=limit, since=since)
-    # Resume support: in backfill, skip comments already stored so an
-    # interruption (or hourly-limit pause) never re-spends the request budget.
-    if mode == "backfill":
-        existing = {r[0] for r in c.execute("SELECT id FROM comments").fetchall()}
-        before = len(ids)
-        ids = [(cid, lm) for (cid, lm) in ids if cid not in existing]
-        print(f"{before} listed; {len(existing)} already stored; {len(ids)} left to fetch", flush=True)
-    else:
-        print(f"{len(ids)} comment(s) to process", flush=True)
+    # Skip comments already stored with an unchanged lastModifiedDate — in BOTH modes.
+    # Never re-spend the API request budget on comments we already have unchanged; only
+    # genuinely new (or changed) comments get a detail fetch. This keeps daily runs tiny.
+    existing = {r[0]: r[1] for r in c.execute("SELECT id, last_modified_date FROM comments").fetchall()}
+    before = len(ids)
+    ids = [(cid, lm) for (cid, lm) in ids if existing.get(cid) != lm]
+    print(f"{before} listed; {before - len(ids)} unchanged (skipped); {len(ids)} to fetch", flush=True)
     new = upd = natt = 0
     for i, (cid, _) in enumerate(ids, 1):
         try:
