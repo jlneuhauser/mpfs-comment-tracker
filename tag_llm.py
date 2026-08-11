@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 KEY  = os.environ.get("ANTHROPIC_API_KEY")
-MODEL = os.environ.get("MODEL", "claude-haiku-4-5")   # set to a current model id from docs.anthropic.com
+MODEL = os.environ.get("MODEL") or "claude-haiku-4-5"   # blank/unset -> default; override via MODEL repo var
 SCHEMA = open(os.path.join(BASE, "tag_schema.md")).read()
 BATCH = 12
 
