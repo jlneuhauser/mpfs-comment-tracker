@@ -1,0 +1,3 @@
+# The pipeline uses only the Python standard library plus (optionally) requests.
+# System packages poppler-utils and tesseract-ocr are installed in the workflow.
+requests

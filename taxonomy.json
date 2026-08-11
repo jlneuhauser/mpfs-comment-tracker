@@ -1,0 +1,114 @@
+{
+  "docket": "CMS-2026-2377",
+  "rule": "CMS-1848-P",
+  "comment_deadline": "2026-09-14",
+  "description": "Watch-list taxonomy for classifying CY2027 MPFS comments. TOPIC-ANCHORED: a comment is women's-health-relevant only if it contains a genuine women's-health topic term (wh_topic_terms). Policy themes (E/M, valuation, conversion factor, RFIs) match on policy language regardless of specialty; women's-health themes require topic terms. Themes with requires_wh_topic=true only apply when a women's-health topic term is also present, so generic payment/RFI language alone never tags a comment as women's health.",
+
+  "wh_topic_terms": ["women's health", "womens health", "woman's health", "obstetric", "ob/gyn", "ob-gyn", "obgyn", "gynecolog", "gynaecolog", "maternal", "maternity", "pregnan", "prenatal", "antepartum", "postpartum", "peripartum", "perinatal", "labor and delivery", "labor & delivery", "childbirth", "cesarean", "c-section", "midwife", "midwifery", "doula", "menopaus", "perimenopaus", "hormone therapy", "hormone replacement", "estrogen", "hot flash", "vasomotor", "vulvovaginal", "genitourinary syndrome", "fertility", "infertility", "in vitro", "ivf", "reproductive endocrin", "reproductive health", "pcos", "polycystic ovar", "endometriosis", "ovarian", "ovulat", "uterine", "uterus", "hysterectomy", "colposcopy", "cervical cancer", "cervical screening", "cervical dysplasia", "pap smear", "well-woman", "well woman", "lactation", "breastfeeding", "chestfeeding", "human milk", "mammogra", "breast cancer", "breast reconstruction", "breast reduction", "contracept", "intrauterine device", "preeclampsia", "eclampsia", "gestational", "fibroid", "myomectomy", "oophorectomy", "salpingectomy", "pelvic floor", "pelvic exam", "pelvic pain", "menstrua", "vaginal delivery"],
+
+  "priority_watch": {
+    "restorative_reproductive_medicine": {
+      "label": "Restorative Reproductive Medicine (RRM)",
+      "priority": "critical",
+      "terms": ["restorative reproductive medicine", "restorative reproductive", "NaProTechnology", "naprotechnology", "fertility awareness", "fertility awareness-based", "FABM", "cycle charting", "menstrual cycle charting"]
+    },
+    "root_cause_medicine": {
+      "label": "Root Cause Medicine",
+      "priority": "critical",
+      "terms": ["root cause medicine", "root-cause medicine", "root cause approach", "address the root cause", "treat the underlying cause"]
+    }
+  },
+
+  "themes": {
+    "maternity_labor_delivery": {
+      "label": "Maternity & Labor/Delivery Coding",
+      "priority": "high", "womens_health": true,
+      "terms": ["maternity", "labor and delivery", "labor & delivery", "obstetric", "global OB", "global obstetric", "prenatal", "postpartum", "perinatal", "antepartum", "childbirth", "cesarean", "c-section", "vaginal delivery", "59400", "59510", "59610", "59618", "certified nurse-midwife", "nurse-midwife", "nurse midwife", "midwife", "doula", "preeclampsia", "gestational", "ACOG"]
+    },
+    "lactation": {
+      "label": "Lactation Care & Consultant Staff Type",
+      "priority": "high", "womens_health": true,
+      "terms": ["lactation", "breastfeeding", "lactation consultant", "IBCLC", "human milk", "chestfeeding", "L076A", "978XX"]
+    },
+    "menopause_midlife": {
+      "label": "Menopause & Midlife Women's Health",
+      "priority": "critical", "womens_health": true,
+      "terms": ["menopause", "menopausal", "perimenopause", "perimenopausal", "hormone therapy", "hormone replacement", "vasomotor", "hot flash", "vulvovaginal", "genitourinary syndrome", "GSM"]
+    },
+    "fertility_reproductive": {
+      "label": "Fertility & Reproductive Endocrinology",
+      "priority": "high", "womens_health": true,
+      "terms": ["fertility", "infertility", "IVF", "in vitro", "assisted reproductive", "reproductive endocrinolog", "preconception", "PCOS", "polycystic", "endometriosis", "diminished ovarian reserve", "ovulation", "IUI", "intrauterine insemination", "egg freezing", "oocyte"]
+    },
+    "gyn_surgery": {
+      "label": "GYN Surgery & Procedures",
+      "priority": "high", "womens_health": true,
+      "terms": ["hysterectomy", "colposcopy", "gynecologic surgery", "gynecological surgery", "GYN surgery", "pelvic exam", "pelvic floor", "LEEP", "endometrial ablation", "myomectomy", "oophorectomy", "salpingectomy", "cervical cancer screening", "pap smear", "urethral bulking", "breast reconstruction", "19380", "breast reduction", "19318", "vulvovaginal"]
+    },
+    "maternity_access": {
+      "label": "Maternal Health Workforce & Access",
+      "priority": "medium", "womens_health": true,
+      "terms": ["OB desert", "maternity desert", "maternal care desert", "rural OB", "rural obstetric", "maternal care access", "maternity care access", "OB/GYN shortage", "maternal health workforce", "OB unit clos"]
+    },
+    "chronic_conditions_women": {
+      "label": "Women-Predominant Chronic Conditions",
+      "priority": "medium", "womens_health": true, "requires_wh_topic": true,
+      "terms": ["autoimmune", "lupus", "rheumatoid", "thyroid", "migraine", "Alzheimer", "cognitive decline", "osteoporosis", "bone health", "cardiovascular", "behavioral health", "collaborative care", "caregiver"]
+    },
+    "em_modifier25": {
+      "label": "E/M Codes & Modifier 25",
+      "priority": "high", "womens_health": false,
+      "terms": ["evaluation and management", "evaluation & management", "E/M service", "E/M code", "E/M visit", "E/M", "E&M", "office/outpatient", "outpatient E/M", "office visit", "99202", "99203", "99204", "99205", "99211", "99212", "99213", "99214", "99215", "modifier 25", "modifier -25", "25 modifier", "mod 25", "significant, separately identifiable", "separately identifiable service", "separately identifiable E/M", "same-day E/M", "same day E/M", "G2211", "complexity add-on", "payment for E/M", "E/M reduction", "reduce E/M payment", "bundling E/M"]
+    },
+    "valuation_misvalued": {
+      "label": "RVU Valuation & Misvalued Codes",
+      "priority": "medium", "womens_health": false,
+      "terms": ["misvalued", "mis-valued", "potentially misvalued", "work RVU", "practice expense RVU", "indirect practice expense", "efficiency adjustment", "empirical time", "empiric time", "Harvard-valued", "harvard valued", "010-day global", "090-day global", "global period", "supply pack", "multiple procedure reduction", "50% reduction", "RUC recommendation", "practice expense methodology"]
+    },
+    "remote_monitoring": {
+      "label": "Remote Monitoring (RPM/RTM)",
+      "priority": "high", "womens_health": false,
+      "terms": ["remote patient monitoring", "remote physiologic monitoring", "remote therapeutic monitoring", "RPM", "RTM", "remote monitoring", "third-party vendor", "outsourced monitoring", "face-to-face initiating", "initiating visit", "99453", "99454", "99457", "99091", "postpartum hypertension monitoring", "Save Remote Monitoring"]
+    },
+    "telehealth": {
+      "label": "Telehealth & Virtual Care",
+      "priority": "medium", "womens_health": false,
+      "terms": ["telehealth", "telemedicine", "originating site", "audio-only", "virtual care", "platform modifier", "modifier BB", "asynchronous", "store and forward", "telehealth cliff", "at-home lab"]
+    },
+    "cpt_rfi": {
+      "label": "CPT Coding & Valuation System RFI",
+      "priority": "high", "womens_health": false, "is_rfi": true,
+      "terms": ["CPT coding", "coding and valuation", "valuation system", "MedPAC", "NASEM", "code creation", "valuation process", "grouped for payment", "coding process", "misvalued code nomination"]
+    },
+    "primary_care_redesign_rfi": {
+      "label": "Primary Care Redesign RFI",
+      "priority": "high", "womens_health": false, "is_rfi": true,
+      "terms": ["primary care redesign", "redesigning primary care", "longitudinal care", "advanced primary care", "APCM", "G2211", "prospective primary care", "hybrid payment", "care management fee"]
+    },
+    "awv_wellwoman_rfi": {
+      "label": "Annual Wellness / Well-Woman Visit RFI",
+      "priority": "critical", "womens_health": true, "is_rfi": true, "requires_wh_topic": true,
+      "terms": ["annual wellness visit", "AWV", "well-woman", "well woman", "wellness visit", "health risk assessment", "preventive visit", "personalized prevention", "shared medical appointment", "group visit"]
+    },
+    "specialty_attribution_rfi": {
+      "label": "Specialty Care Attribution / ACO RFI",
+      "priority": "high", "womens_health": true, "is_rfi": true, "requires_wh_topic": true,
+      "terms": ["specialty care attribution", "attribution", "principal longitudinal care", "ACO", "shared savings", "MSSP", "accountable care", "G0101", "cervical cancer screening", "OB/GYN as primary", "principal care provider"]
+    },
+    "quality_data_rfi": {
+      "label": "Quality Data Infrastructure / MVP RFI",
+      "priority": "high", "womens_health": true, "is_rfi": true, "requires_wh_topic": true,
+      "terms": ["quality measure", "MVP", "MIPS Value Pathway", "MIPS", "digital quality", "eCQM", "women's health MVP", "star rating", "sex-stratified", "sex-disaggregated", "maternal mental health screening", "measure development"]
+    },
+    "primary_care_rfi_generic": {
+      "label": "Conversion Factor & Payment Models",
+      "priority": "medium", "womens_health": false,
+      "terms": ["conversion factor", "budget neutrality", "Ambulatory Specialty Model", "specialty model", "frequency limit", "MAHA", "Make America Healthy", "duplicate testing"]
+    },
+    "workforce_access_general": {
+      "label": "Workforce & Site-of-Service Access",
+      "priority": "medium", "womens_health": false,
+      "terms": ["rural health clinic", "RHC", "FQHC", "scope of practice", "incident-to", "billing eligibility", "supervision requirement", "workforce shortage", "access to care"]
+    }
+  }
+}
