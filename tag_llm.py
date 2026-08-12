@@ -21,9 +21,9 @@ def call(comments):
                        "messages": [{"role": "user", "content": user}]}).encode()
     req = urllib.request.Request("https://api.anthropic.com/v1/messages", data=body, method="POST",
         headers={"x-api-key": KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"})
-    for attempt in range(4):
+    for attempt in range(5):
         try:
-            with urllib.request.urlopen(req, timeout=180) as r:
+            with urllib.request.urlopen(req, timeout=300) as r:
                 data = json.loads(r.read())
             txt = data["content"][0]["text"].strip()
             if txt.startswith("```"):
@@ -32,9 +32,22 @@ def call(comments):
             i, j = txt.find("["), txt.rfind("]")
             return json.loads(txt[i:j+1])
         except urllib.error.HTTPError as e:
-            if e.code in (429, 500, 503, 529) and attempt < 3:
-                time.sleep(5 * (attempt + 1)); continue
-            print("API error", e.code, e.read().decode()[:300]); raise
+            detail = ""
+            try: detail = e.read().decode()[:300]
+            except Exception: pass
+            if e.code in (429, 500, 502, 503, 529) and attempt < 4:
+                time.sleep(min(60, 5 * (attempt + 1))); continue
+            print(f"  API HTTPError {e.code} {detail} - skipping this batch", flush=True)
+            return []
+        except Exception as e:
+            # timeouts, dropped connections, malformed responses: all transient.
+            # Retry with backoff, then skip this batch (stays untagged for next run)
+            # rather than crashing the whole pipeline.
+            if attempt < 4:
+                print(f"  transient error ({type(e).__name__}: {e}); retry {attempt+1}/5", flush=True)
+                time.sleep(min(60, 5 * (attempt + 1))); continue
+            print(f"  giving up on this batch after retries ({type(e).__name__}) - will retry next run", flush=True)
+            return []
     return []
 
 def eff_text(db, cid, ctext):
