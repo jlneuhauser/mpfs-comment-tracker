@@ -33,7 +33,10 @@ def main():
             "stance_target": (r["llm_stance_target"] or None), "framings": jl(r["llm_framings"]),
             "provisions": jl(r["llm_provisions"]), "rfi": jl(r["llm_rfi"]), "wh_topics": jl(r["llm_topics"]),
             "quote": (r["llm_quote"] or None), "summary": (r["llm_summary"] or None), "confidence": r["llm_confidence"],
-            "attachment_read": bool(r["llm_enriched"]), "has_attachment": r["id"] in att})
+            "attachment_read": bool(r["llm_enriched"]), "has_attachment": r["id"] in att,
+            "is_form_letter": (bool(r["is_form_letter"]) if ("is_form_letter" in r.keys() and r["is_form_letter"] is not None) else False),
+            "dup_cluster": (r["dup_cluster"] if ("dup_cluster" in r.keys() and r["dup_cluster"] is not None) else None),
+            "dup_cluster_size": (r["dup_cluster_size"] if ("dup_cluster_size" in r.keys() and r["dup_cluster_size"] is not None) else 1)})
     for i in range(0, len(crows), 400):
         post("comments", crows[i:i+400]); print(f"  upserted comments {min(i+400,len(crows))}/{len(crows)}")
     arows = [{"id": a["id"], "comment_id": cid, "file_name": a["file_name"], "source_url": a["source_url"],

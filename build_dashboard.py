@@ -70,7 +70,7 @@ section{margin:0 0 26px}
 .bars{display:flex;flex-direction:column;gap:10px}
 .bar{display:grid;grid-template-columns:200px 1fr 46px;align-items:center;gap:12px}
 @media(max-width:560px){.bar{grid-template-columns:130px 1fr 38px}}
-.bar.clk{cursor:pointer}.bar.clk:hover .fill{filter:brightness(1.08)}.bar.clk:hover .lab{color:var(--ink)}
+.bar.clk{cursor:pointer;border-radius:8px;padding:3px 8px;margin:0 -8px;transition:background .12s}.bar.clk .val{position:relative;padding-right:15px}.bar.clk .val::after{content:"\203A";position:absolute;right:2px;top:50%;transform:translateY(-50%);color:var(--baseline);font-weight:700}.bar.clk:hover{background:rgba(6,145,139,.08)}.bar.clk:hover .fill{filter:brightness(1.08)}.bar.clk:hover .lab{color:var(--ink)}.bar.clk:hover .val::after{color:var(--teal)}
 .bar .lab{font-size:13px;color:var(--text-2);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bar .track{background:linear-gradient(var(--grid),var(--grid)) left center/100% 2px no-repeat;height:22px;position:relative}
 .bar .fill{height:22px;border-radius:5px;min-width:3px;transition:width .5s cubic-bezier(.2,.7,.2,1)}
@@ -107,7 +107,7 @@ section{margin:0 0 26px}
 .scard .q{color:var(--text-2);font-size:13px;font-style:italic;margin:8px 0;line-height:1.5;border-left:2px solid var(--teal);padding-left:10px}
 .scard .meta{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);margin-top:8px;gap:8px}
 .scard .meta a{white-space:nowrap}
-.kwrap{display:flex;flex-wrap:wrap;gap:9px}
+.feature{border:1px solid var(--teal);box-shadow:0 2px 22px rgba(6,145,139,.13)}.camp-split{margin-bottom:16px}.camp-list{display:flex;flex-direction:column;gap:9px;margin-top:4px}.camprow{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;cursor:pointer;border:1px solid var(--border);border-radius:12px;padding:11px 14px;background:var(--page);transition:border-color .12s,background .12s}.camprow:hover{border-color:var(--teal);background:rgba(6,145,139,.05)}.camprow .txt{font-size:13.5px;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}.camprow .txt b{color:var(--ink);font-weight:600}.camprow .n{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);white-space:nowrap}.camprow .n .cnt{font-weight:700;color:var(--teal);font-variant-numeric:tabular-nums}.camprow .whtag{font-size:10.5px;color:var(--magenta);border:1px solid var(--magenta);border-radius:100px;padding:1px 8px;font-weight:600}.camplead{display:flex;gap:22px;flex-wrap:wrap;margin-bottom:4px}.camplead .cell .big{font-family:var(--serif);font-size:34px;line-height:1;color:var(--ink)}.camplead .cell .big.mag{color:var(--magenta)}.camplead .cell .sub{color:var(--text-2);font-size:12.5px;margin-top:5px}.kwrap{display:flex;flex-wrap:wrap;gap:9px}
 .kw{cursor:pointer;border:1px solid var(--border);background:var(--page);border-radius:100px;padding:8px 15px;font-size:13.5px;color:var(--text-2);display:inline-flex;gap:8px;align-items:center}
 .kw:hover{border-color:var(--teal);color:var(--ink)}.kw b{color:var(--teal)}
 .suggest{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
@@ -144,10 +144,10 @@ footer .wordmark{margin-bottom:12px}footer .fnote{font-size:13px;color:#9fb8b3;m
 </style></head><body>
 <div class="deadline">Federal comments on the CY2027 Medicare rule close September 14, 2026. <span id="deadlineDays"></span></div>
 <nav class="nav"><div class="inner">
-  <a href="https://medicarefeeschedule.51and.com/" target="_blank" rel="noopener" class="wordmark">51<b>&amp;</b></a>
+  <a href="https://51and.com" target="_blank" rel="noopener" class="wordmark" aria-label="51&amp;"><img src="https://cdn.prod.website-files.com/68f026f80cae49183f869cc9/68f026f80cae49183f869d84_asset-logo-51-white.svg" alt="51&amp;" style="height:30px;width:auto;display:block"></a>
   <div style="display:flex;align-items:center">
     <a class="navlink" href="https://medicarefeeschedule.51and.com/" target="_blank" rel="noopener">Learn more about 51&amp; &rarr;</a>
-    <button class="toggle" id="themeBtn">Theme</button></div>
+    <button class="toggle" id="themeBtn">Dark mode</button></div>
 </div></nav>
 <header class="hero"><div class="inner">
   <p class="eyebrow">Live comment tracker &middot; Docket CMS-2026-2377 &middot; Updated daily</p>
@@ -171,14 +171,21 @@ footer .wordmark{margin-bottom:12px}footer .fnote{font-size:13px;color:#9fb8b3;m
 
   <div class="grid2">
     <section><div class="sec-head"><p class="eyebrow">Who's commenting</p><h2 class="sec-h">By specialty</h2>
-      <p class="hint">Inferred from each letter. Click to filter.</p></div>
+      <p class="hint">Inferred from each letter. Click any bar to filter the browser below.</p></div>
       <div class="panel"><div class="bars" id="specBars"></div></div></section>
-    <section><div class="sec-head"><p class="eyebrow">Who's commenting</p><h2 class="sec-h">By submitter type</h2></div>
+    <section><div class="sec-head"><p class="eyebrow">Who's commenting</p><h2 class="sec-h">By submitter type</h2><p class="hint">Who filed each comment. Click any bar to filter the browser below.</p></div>
       <div class="panel"><div class="bars" id="typeBars"></div></div></section>
   </div>
 
+  <section id="campaigns"><div class="sec-head"><p class="eyebrow">How organic is the docket</p><h2 class="sec-h">Original comments vs. organized campaigns</h2><p class="hint">Many comments are near-identical templates from an organized campaign &mdash; sometimes with a single sentence changed. We group them by text similarity, applied evenly to every campaign and every viewpoint. Agencies weigh unique, substantive comments differently from mass submissions, so this separates the two. Click any campaign to read it.</p></div>
+    <div class="panel">
+      <div class="camplead"><div class="cell"><div class="big" id="origBig"></div><div class="sub">original / individual comments</div></div><div class="cell"><div class="big mag" id="campBig"></div><div class="sub" id="campSub">in organized template campaigns</div></div></div>
+      <div class="camp-split"><div class="stack" id="campStack"></div><div class="stackleg" id="campLeg"></div></div>
+      <div class="camp-list" id="campList"></div>
+    </div></section>
+
   <section><div class="sec-head"><p class="eyebrow">What the rule fight is about</p><h2 class="sec-h">The provisions drawing fire</h2>
-    <p class="hint">Which parts of the proposed rule each comment addresses.</p></div>
+    <p class="hint">Which parts of the proposed rule each comment addresses. Click any bar to filter the browser below.</p></div>
     <div class="panel"><div class="bars" id="provBars"></div></div></section>
 
   <section><div class="sec-head"><p class="eyebrow">Submissions over time</p><h2 class="sec-h">The run-up to September 14</h2></div>
@@ -194,24 +201,24 @@ footer .wordmark{margin-bottom:12px}footer .fnote{font-size:13px;color:#9fb8b3;m
       <div style="flex:2;min-width:260px"><div class="stack" id="tierStack"></div><div class="stackleg" id="tierLeg"></div></div>
     </div></div></section>
 
+  <section><div class="sec-head"><p class="eyebrow">The opportunity map</p><h2 class="sec-h">The five RFIs &mdash; and the women's-health gap</h2>
+    <p class="hint">RFIs are the five questions where CMS explicitly asked for input &mdash; the cheapest point to move the rule. For each: total comments (light) vs. women's-health&ndash;relevant (teal). The emptiness is the opening. Click any RFI to read its comments.</p></div>
+    <div class="panel feature"><div id="rfiWrap"></div></div></section>
+
   <section><div class="sec-head"><p class="eyebrow">The hidden stakes</p><h2 class="sec-h">General fights with a women's-health consequence</h2>
     <p class="hint">These comments never mention women's health as their topic &mdash; but each carries a specific, nameable consequence for women's care. This is the connective tissue most readers miss.</p></div>
-    <div class="panel"><div class="stakes" id="stakesGrid"></div></div></section>
+    <div class="panel"><div class="stakes" id="stakesGrid"></div><button class="more" id="stakesMore" style="display:none">Show all <span id="stakesN"></span> &darr;</button></div></section>
 
   <div class="grid2">
-    <section><div class="sec-head"><p class="eyebrow">Directly about women's health</p><h2 class="sec-h">What the core comments cover</h2></div>
+    <section><div class="sec-head"><p class="eyebrow">Directly about women's health</p><h2 class="sec-h">What the core comments cover</h2><p class="hint">Click any bar to filter the browser below.</p></div>
       <div class="panel"><div class="bars" id="topicBars"></div></div></section>
     <section><div class="sec-head"><p class="eyebrow">Keyword tracker</p><h2 class="sec-h">Women's-health terms in the text</h2>
       <p class="hint">Click a keyword to filter the browser.</p></div>
       <div class="panel"><div class="kwrap" id="kwrap"></div></div></section>
   </div>
 
-  <section><div class="sec-head"><p class="eyebrow">The opportunity map</p><h2 class="sec-h">The five RFIs &mdash; and the women's-health gap</h2>
-    <p class="hint">RFIs are where CMS explicitly asked for input &mdash; the cheapest point to move the rule. For each: total comments (light) vs. women's-health&ndash;relevant (teal). The emptiness is the opening.</p></div>
-    <div class="panel"><div id="rfiWrap"></div></div></section>
-
   <section><div class="sec-head"><p class="eyebrow">Framings across the debate</p><h2 class="sec-h">How commenters argue &mdash; every side</h2>
-    <p class="hint">Descriptive lenses applied evenly to every comment, never labeled political. Restorative/root-cause (the RRM/MAHA framing) sits here as one row among many.</p></div>
+    <p class="hint">Descriptive lenses applied evenly to every comment, never labeled political. Restorative/root-cause (the RRM/MAHA framing) sits here as one row among many. Click any bar to filter.</p></div>
     <div class="panel"><div class="bars" id="frameBars"></div></div></section>
 
   <section id="browser"><div class="sec-head"><p class="eyebrow">Comment browser</p><h2 class="sec-h">Search every comment</h2>
@@ -221,6 +228,7 @@ footer .wordmark{margin-bottom:12px}footer .fnote{font-size:13px;color:#9fb8b3;m
       <select id="fSpec"><option value="">All specialties</option></select>
       <select id="fStance"><option value="">All stances</option><option value="oppose">Oppose</option><option value="support">Support</option><option value="mixed">Mixed</option><option value="neutral_informational">Neutral</option></select>
       <select id="fTier"><option value="">All comments</option><option value="core">Women's health — core</option><option value="stakes">Women's health — stakes</option><option value="general">General</option></select>
+      <select id="fForm"><option value="">All comments</option><option value="orig">Original only</option><option value="camp">Campaigns only</option></select>
       <select id="fTheme"><option value="">All themes</option></select>
       <select id="fKw"><option value="">All keywords</option></select>
       <button class="clearbtn" id="clearBtn">Clear</button>
@@ -236,7 +244,7 @@ footer .wordmark{margin-bottom:12px}footer .fnote{font-size:13px;color:#9fb8b3;m
       <input id="sgEmail" type="email" placeholder="Your email (optional)"><button class="btn btn-pink" id="sgBtn" style="padding:11px 22px;font-size:14px">Send suggestion &rarr;</button></div>
       <div id="sgMsg" class="hint" style="margin:12px 0 0"></div></div></section>
 </main>
-<footer><div class="inner"><div class="wordmark">51<b>&amp;</b></div><div class="fnote" id="foot"></div></div></footer>
+<footer><div class="inner"><div class="wordmark"><img src="https://cdn.prod.website-files.com/68f026f80cae49183f869cc9/68f026f80cae49183f869d84_asset-logo-51-white.svg" alt="51&amp;" style="height:34px;width:auto"></div><div class="fnote" id="foot"></div></div></footer>
 <div class="tt" id="tip"></div>
 <script>
 const DATA=/*__DATA__*/;const $=s=>document.querySelector(s);
@@ -245,7 +253,7 @@ const fmt=n=>n.toLocaleString();const PLAIN=DATA.plain_map||{};const tip=$("#tip
 function showTip(e,h){tip.innerHTML=h;tip.style.opacity=1;mv(e);}
 function mv(e){let x=e.clientX+14,y=e.clientY+14;if(x+tip.offsetWidth>innerWidth)x=e.clientX-tip.offsetWidth-14;if(y+tip.offsetHeight>innerHeight)y=e.clientY-tip.offsetHeight-14;tip.style.left=x+"px";tip.style.top=y+"px";}
 function hideTip(){tip.style.opacity=0;}
-$("#themeBtn").onclick=()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==="dark"?"light":"dark";renderTimeline();};
+const themeBtn=$("#themeBtn");function setThemeLabel(){themeBtn.textContent=document.documentElement.dataset.theme==="dark"?"☀ Light mode":"☾ Dark mode";}setThemeLabel();themeBtn.onclick=()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==="dark"?"light":"dark";setThemeLabel();renderTimeline();};
 const M=DATA.meta,D=DATA.docket,W=DATA.wh;
 const days=Math.max(0,Math.ceil((new Date(M.deadline+"T23:59:59Z")-new Date())/864e5));
 $("#deadlineDays").textContent=days+" days left.";$("#heroCount").textContent=fmt(M.total)+" comments";
@@ -274,8 +282,14 @@ function stack(el,leg,items,total,cmap,onClick){
 stack($("#stanceStack"),$("#stanceLeg"),D.stance,M.total,SCOL,k=>applyFilter({stance:k}));
 
 bars($("#specBars"),D.specialties.map(s=>({label:s.label,count:s.count})),{color:"var(--teal)",onClick:i=>applyFilter({spec:i.label})});
-bars($("#typeBars"),D.submitter_types.map(t=>({label:t.type,count:t.count})),{color:"var(--green)"});
+bars($("#typeBars"),D.submitter_types.map(t=>({label:t.type,count:t.count})),{color:"var(--green)",onClick:i=>applyFilter({list:{field:'type',value:i.label,label:i.label+' — submitter type',scalar:true}})});
 bars($("#provBars"),D.provisions.map(p=>({label:p.label,count:p.count,key:p.key})),{color:"var(--magenta)",onClick:i=>applyFilter({list:{field:'provisions',value:i.key,label:i.label}})});
+// campaigns: original vs organized template submissions
+$("#origBig").textContent=fmt(M.original);$("#campBig").textContent=fmt(M.campaign_submissions);
+$("#campSub").innerHTML="in <b>"+M.n_campaigns+"</b> organized template campaigns";
+stack($("#campStack"),$("#campLeg"),[{key:"orig",label:"Original / individual comments",count:M.original},{key:"camp",label:"Organized template campaigns",count:M.campaign_submissions}],M.total,{orig:"var(--teal)",camp:"var(--magenta)"},k=>applyFilter({list:{field:"form",value:(k==="camp"),label:(k==="camp"?"Organized campaign submissions":"Original comments"),scalar:true}}));
+$("#campList").innerHTML=(DATA.campaigns||[]).map((c,x)=>`<div class="camprow" data-x="${x}"><div class="txt">&ldquo;<b>${esc(c.sample)}</b>&rdquo;</div><div class="n">${c.wh_any?'<span class="whtag">women\'s health</span>':''}<span class="pill ${c.stance}">${c.stance==='neutral_informational'?'neutral':c.stance}</span><span class="cnt">${fmt(c.size)}</span> submissions</div></div>`).join("");
+$("#campList").querySelectorAll(".camprow").forEach(el=>el.onclick=()=>{const c=DATA.campaigns[+el.dataset.x];applyFilter({list:{field:"cluster",value:c.id,label:"Template campaign · "+c.size+" submissions",scalar:true}});});
 
 // tier
 const T=W.tier,rel=T.core+T.stakes;
@@ -285,7 +299,10 @@ const TCOL={core:"var(--teal)",stakes:"var(--gold)",general:"var(--other)"};
 stack($("#tierStack"),$("#tierLeg"),[{key:"core",label:"Directly about women's health",count:T.core},{key:"stakes",label:"General, with women's-health stakes",count:T.stakes},{key:"general",label:"General policy",count:T.general}],M.total,TCOL,k=>applyFilter({tier:k}));
 
 // stakes cards
-$("#stakesGrid").innerHTML=W.stakes.map(s=>`<div class="scard"><div class="note">${esc(s.note)}</div>${s.quote?`<div class="q">&ldquo;${esc(s.quote)}&rdquo;</div>`:""}<div class="meta"><span>${esc(s.specialty)}${s.provisions.length?' &middot; '+esc(s.provisions[0]):''}</span><a href="${s.url}" target="_blank" rel="noopener">Read &rarr;</a></div></div>`).join("");
+const STK=W.stakes;let stakesShown=4;
+const scard=s=>`<div class="scard"><div class="note">${esc(s.note)}</div>${s.quote?`<div class="q">&ldquo;${esc(s.quote)}&rdquo;</div>`:""}<div class="meta"><span>${esc(s.specialty)}${s.provisions.length?' &middot; '+esc(s.provisions[0]):''}</span><a href="${s.url}" target="_blank" rel="noopener">Read &rarr;</a></div></div>`;
+function renderStakes(){$("#stakesGrid").innerHTML=STK.slice(0,stakesShown).map(scard).join("");$("#stakesMore").style.display=STK.length>stakesShown?"block":"none";$("#stakesN").textContent=STK.length;}
+renderStakes();$("#stakesMore").onclick=()=>{stakesShown=STK.length;renderStakes();};
 
 bars($("#topicBars"),W.topics.map(t=>({label:t.label,count:t.count,key:t.key})),{color:"var(--teal)",onClick:i=>applyFilter({list:{field:'topics',value:i.key,label:i.label}})});
 $("#kwrap").innerHTML=(DATA.keywords||[]).map((k,x)=>`<span class="kw" data-x="${x}">${esc(k.label)} <b>${k.count}</b></span>`).join("");
@@ -321,12 +338,13 @@ DATA.themes.filter(t=>t.count>0).forEach(t=>fTheme.add(new Option((t.plain||t.la
 (DATA.keywords||[]).forEach(k=>fKw.add(new Option(k.label+" ("+k.count+")",k.label)));
 let shown=40,sortK="posted",sortDir=-1,whOnly=false,listFilter=null;
 function passes(r){if(whOnly&&!(r.tier==='core'||r.tier==='stakes'))return false;
- if(listFilter&&!(r[listFilter.field]||[]).includes(listFilter.value))return false;
+ if(listFilter){if(listFilter.scalar){if(r[listFilter.field]!==listFilter.value)return false;}else if(!(r[listFilter.field]||[]).includes(listFilter.value))return false;}
  const q=$("#q").value.trim().toLowerCase();
  if(q&&!((r.title+" "+r.org+" "+r.summary+" "+r.snippet).toLowerCase().includes(q)))return false;
  if(fSpec.value&&r.specialty!==fSpec.value)return false;
  if($("#fStance").value&&r.stance!==$("#fStance").value)return false;
  const tv=$("#fTier").value;if(tv==="core"&&r.tier!=="core")return false;if(tv==="stakes"&&r.tier!=="stakes")return false;if(tv==="general"&&r.tier!=="general")return false;
+ const fv=$("#fForm").value;if(fv==="orig"&&r.form)return false;if(fv==="camp"&&!r.form)return false;
  if(fTheme.value&&!r.themes.includes(fTheme.value))return false;
  if(fKw.value&&!(r.kw||[]).includes(fKw.value))return false;return true;}
 function render(){let f=rows.filter(passes);f.sort((a,b)=>{let av=a[sortK]||"",bv=b[sortK]||"";return(av<bv?-1:av>bv?1:0)*sortDir;});
@@ -339,9 +357,9 @@ function render(){let f=rows.filter(passes);f.sort((a,b)=>{let av=a[sortK]||"",b
   <td class="tt-org">${esc(r.specialty)}</td><td><span class="pill ${r.stance}">${r.stance==='neutral_informational'?'neutral':r.stance}</span></td></tr>`).join("")||`<tr><td colspan="4" style="color:var(--muted);padding:26px;text-align:center">No comments match these filters.</td></tr>`;
  $("#moreBtn").style.display=f.length>shown?"block":"none";}
 function applyFilter(f){f=f||{};whOnly=(f.tier==="wh");listFilter=f.list||null;$("#q").value=f.q||"";fSpec.value=f.spec||"";$("#fStance").value=f.stance||"";
- $("#fTier").value=(f.tier&&f.tier!=="wh")?f.tier:"";fTheme.value=f.theme||"";fKw.value=f.kw||"";
+ $("#fTier").value=(f.tier&&f.tier!=="wh")?f.tier:"";fTheme.value=f.theme||"";fKw.value=f.kw||"";$("#fForm").value="";
  shown=40;render();$("#browser").scrollIntoView({behavior:"smooth",block:"start"});}
-["#q","#fSpec","#fStance","#fTier","#fTheme","#fKw"].forEach(s=>$(s).addEventListener("input",()=>{whOnly=false;listFilter=null;shown=40;render();}));
+["#q","#fSpec","#fStance","#fTier","#fForm","#fTheme","#fKw"].forEach(s=>$(s).addEventListener("input",()=>{whOnly=false;listFilter=null;shown=40;render();}));
 $("#clearBtn").onclick=()=>applyFilter({});
 $("#moreBtn").onclick=()=>{shown+=100;render();};
 document.querySelectorAll("th[data-k]").forEach(th=>th.onclick=()=>{const k=th.dataset.k;sortDir=(sortK===k)?-sortDir:(k==="posted"?-1:1);sortK=k;render();});

@@ -3,7 +3,7 @@
 dashboard. Two layers: the whole docket (neutral context) and the 51& women's-health
 lens (proprietary cut). Uses both keyword themes and the LLM tags."""
 import sqlite3, json, os, re
-from collections import Counter
+from collections import Counter, defaultdict
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 DB   = os.path.join(BASE, "corpus.db")
@@ -94,6 +94,10 @@ def main():
     spec_counts=Counter(); stance_counts=Counter(); tier_counts=Counter(); frame_counts=Counter(); prov_counts=Counter(); topic_counts=Counter()
     rfi_total=Counter(); rfi_wh=Counter()
     wh=watch_rrm=watch_root=0; prio_counts=Counter(); out_rows=[]; stakes_list=[]
+    camp_members=defaultdict(list); camp_stance=defaultdict(Counter); camp_wh=Counter(); camp_open=defaultdict(Counter)
+    def _open(txt):
+        t=re.sub(r"\s+"," ",(txt or "")).strip()
+        return (t[:72]+"…") if len(t)>72 else t
 
     for r in rows:
         themes=jl(r["themes"])
@@ -113,6 +117,13 @@ def main():
         stance=r["llm_stance"] or "neutral_informational"; stance_counts[stance]+=1
         tier=r["llm_tier"] or "general"; tier_counts[tier]+=1
         whx=bool(r["llm_wh_relevant"])
+        rk=r.keys()
+        is_form=bool(r["is_form_letter"]) if "is_form_letter" in rk and r["is_form_letter"] is not None else False
+        clu=r["dup_cluster"] if "dup_cluster" in rk and r["dup_cluster"] is not None else -1
+        if is_form:
+            camp_members[clu].append(r["id"]); camp_stance[clu][stance]+=1
+            if whx: camp_wh[clu]+=1
+            camp_open[clu][_open(r["comment_text"])]+=1
         for f in jl(r["llm_framings"]): frame_counts[f]+=1
         for p in jl(r["llm_provisions"]): prov_counts[p]+=1
         for tp in jl(r["llm_topics"]):
@@ -131,7 +142,8 @@ def main():
             "stance_target":(r["llm_stance_target"] or "").strip(),"quote":(r["llm_quote"] or "").strip(),
             "summary":(r["llm_summary"] or "").strip(),"has_attach":bool(r["llm_enriched"]),
             "rfi":jl(r["llm_rfi"]),"topics":jl(r["llm_topics"]),"framings":jl(r["llm_framings"]),"provisions":jl(r["llm_provisions"]),
-            "priority":r["priority"] or "low","posted":d,"snippet":snippet,"url":REG_URL.format(r["id"])})
+            "priority":r["priority"] or "low","posted":d,"snippet":snippet,"url":REG_URL.format(r["id"],),
+            "form":is_form,"cluster":(clu if is_form else -1)})
 
     themes_out=[{"key":k,"label":THEME_META[k]["label"],"plain":PLAIN.get(k,THEME_META[k]["label"]),
         "count":theme_counts.get(k,0),"wh":THEME_META[k]["wh"],"rfi":THEME_META[k]["rfi"],
@@ -142,6 +154,15 @@ def main():
     rfi_gap=[{"key":k,"label":RFI_PLAIN.get(k,k),"tech":RFI_TECH.get(k,""),"total":rfi_total[k],"wh":rfi_wh.get(k,0)}
              for k in sorted(rfi_total,key=lambda x:rfi_total[x],reverse=True)]
 
+    campaigns=[]
+    for clu,mem in camp_members.items():
+        sig=camp_open[clu].most_common(1)[0][0] if camp_open[clu] else ""
+        stance_mode=camp_stance[clu].most_common(1)[0][0] if camp_stance[clu] else "neutral_informational"
+        campaigns.append({"id":clu,"size":len(mem),"sample":sig,"stance":stance_mode,
+            "wh":camp_wh.get(clu,0),"wh_any":camp_wh.get(clu,0)>0})
+    campaigns.sort(key=lambda x:-x["size"])
+    camp_submissions=sum(c["size"] for c in campaigns)
+
     attach_comments=db.execute("select count(distinct comment_id) from attachments where length(extracted_text)>50").fetchone()[0]
 
     data={
@@ -151,7 +172,8 @@ def main():
             "wh_relevant":sum(tier_counts[t] for t in ("core","stakes")),
             "tier":{"core":tier_counts.get("core",0),"stakes":tier_counts.get("stakes",0),"general":tier_counts.get("general",0)},
             "n_specialties":len([k for k in spec_counts if k not in("Other/Unclear",)]),
-            "attach_comments":attach_comments},
+            "attach_comments":attach_comments,
+            "campaign_submissions":camp_submissions,"original":total-camp_submissions,"n_campaigns":len(campaigns)},
         "docket":{
             "specialties":top(spec_counts,15),
             "stance":[{"key":k,"label":STANCE_PLAIN.get(k,k),"count":stance_counts.get(k,0)} for k in ["oppose","support","mixed","neutral_informational"]],
@@ -167,6 +189,7 @@ def main():
             "stakes":stakes_list,
         },
         "rfi_gap":rfi_gap,
+        "campaigns":campaigns[:12],
         "framings":top(frame_counts,12,FRAME_PLAIN),
         "themes":themes_out,
         "rfis":[t for t in themes_out if t["rfi"]],
@@ -181,6 +204,7 @@ def main():
     print("RFI gap:",[f"{x['label'][:20]}={x['wh']}/{x['total']}" for x in rfi_gap])
     print("framings:",[f"{x['key']}={x['count']}" for x in data['framings'][:5]])
     print(f"stakes comments: {len(stakes_list)} | attach_comments={attach_comments}")
+    print(f"campaigns: {len(campaigns)} covering {camp_submissions} submissions ({camp_submissions*100//max(total,1)}% of docket); original={total-camp_submissions}")
     print(f"data.json written ({os.path.getsize(os.path.join(BASE,'data.json'))//1024} KB)")
 
 if __name__=="__main__":

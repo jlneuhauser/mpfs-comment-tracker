@@ -15,6 +15,9 @@ python3 reclassify.py
 echo "== 4. LLM-tag any newly ingested comments =="
 python3 tag_llm.py
 
+echo "== 4b. detect template / form-letter campaigns =="
+python3 dedupe.py
+
 echo "== 5. regenerate dashboard =="
 python3 export_data.py
 python3 build_dashboard.py
