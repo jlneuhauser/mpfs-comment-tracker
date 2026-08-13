@@ -28,4 +28,5 @@ python3 supabase_sync.py
 echo "== 7. stage the public site =="
 mkdir -p public
 cp dashboard.html public/index.html
+echo "tracker.51and.com" > public/CNAME   # keep the custom domain across deploys
 echo "done."

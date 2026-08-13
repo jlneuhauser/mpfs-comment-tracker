@@ -144,7 +144,7 @@ footer .wordmark{margin-bottom:12px}footer .fnote{font-size:13px;color:#9fb8b3;m
 </style></head><body>
 <div class="deadline">Federal comments on the CY2027 Medicare rule close September 14, 2026. <span id="deadlineDays"></span></div>
 <nav class="nav"><div class="inner">
-  <a href="https://51and.com" target="_blank" rel="noopener" class="wordmark" aria-label="51&amp;"><img src="https://cdn.prod.website-files.com/68f026f80cae49183f869cc9/68f026f80cae49183f869d84_asset-logo-51-white.svg" alt="51&amp;" style="height:30px;width:auto;display:block"></a>
+  <a href="https://51and.com" target="_blank" rel="noopener" class="wordmark" aria-label="51&amp;"><svg viewBox="0 0 228 106" style="height:30px;width:auto;display:block" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M138.507 73.4236C140.119 84.9335 151.872 92.8166 164.757 91.0323C168.994 90.4458 172.821 88.8823 175.998 86.6449C172.591 96.4587 163.639 104.132 152.259 105.709C136.333 107.915 121.692 97.3435 119.557 82.098C117.422 66.8525 128.602 52.7049 144.527 50.4997C146.678 50.2015 148.803 50.1455 150.879 50.2958C142.241 38.0905 138.235 30.1499 138.235 22.5336C138.235 7.28118 152.931 0 169.49 0C186.05 0 198.653 9.04243 198.653 17.8073C198.653 26.5721 189.38 35.1039 175.407 37.4609C175.407 37.4609 181.587 27.7399 181.587 17.2805C181.587 6.82112 174.611 3.61605 169.389 3.61605C164.312 3.61605 157.533 6.82112 157.533 17.2805C157.533 27.7399 165.187 33.8242 173.57 42.8459C181.953 51.8676 228 103.844 228 103.844H191.464C173.434 79.8261 160.37 63.5654 151.698 51.4459C142.813 55.4868 137.219 64.2179 138.508 73.4244L138.507 73.4236ZM31.6715 39.0305H29.2667V27.687H63.7585V2.09173H0V63.172C8.03988 59.9723 15.2903 58.6635 20.9655 58.6635C30.7386 58.6635 36.4138 62.4451 36.4138 68.843C36.4138 75.3873 30.5813 79.4596 21.1236 79.4596C14.187 79.4596 7.88259 77.4238 0.000770989 72.7696V98.8012C8.81934 103.601 18.2462 105.927 28.2807 105.927C52.913 105.927 68.8779 91.6756 68.8779 70.7338C68.8779 51.2466 54.3193 39.0297 31.6722 39.0297L31.6715 39.0305ZM73.0443 27.3964H83.8983V103.892H113.144V2.09173H73.0451L73.0443 27.3964ZM203.478 54.3619C204.868 54.3619 207.008 54.9738 209.446 58.3307C211.884 61.6883 213.989 63.2809 216.93 63.2809C222.943 63.2809 226.714 58.678 226.714 53.8551C226.714 49.0322 222.938 40.8822 210.51 40.8822C198.082 40.8822 194.743 51.4467 194.237 60.7444C197.648 56.472 200.757 54.3619 203.478 54.3619Z" fill="#f8fbf3"/></svg></a>
   <div style="display:flex;align-items:center">
     <a class="navlink" href="https://medicarefeeschedule.51and.com/" target="_blank" rel="noopener">Learn more about 51&amp; &rarr;</a>
     <button class="toggle" id="themeBtn">Dark mode</button></div>
@@ -190,6 +190,13 @@ footer .wordmark{margin-bottom:12px}footer .fnote{font-size:13px;color:#9fb8b3;m
 
   <section><div class="sec-head"><p class="eyebrow">Submissions over time</p><h2 class="sec-h">The run-up to September 14</h2></div>
     <div class="panel"><div id="timeline"></div></div></section>
+
+  <section><div class="sec-head"><p class="eyebrow">Help shape the tracker</p><h2 class="sec-h">Suggest a topic to track</h2>
+    <p class="hint">See something we're missing &mdash; from any point of view? Tell us and we'll consider adding it to the watch-list.</p></div>
+    <div class="panel"><div class="suggest">
+      <input id="sgTopic" placeholder="Topic or keyword (e.g. pelvic floor therapy)"><input id="sgWhy" placeholder="Why it matters (optional)">
+      <input id="sgEmail" type="email" placeholder="Your email (optional)"><button class="btn btn-pink" id="sgBtn" style="padding:11px 22px;font-size:14px">Send suggestion &rarr;</button></div>
+      <div id="sgMsg" class="hint" style="margin:12px 0 0"></div></div></section>
 
   <div class="layer"><div class="tag">Layer 2 &middot; The 51&amp; women's-health lens</div>
     <h2>What it means for women's health</h2>
@@ -237,14 +244,8 @@ footer .wordmark{margin-bottom:12px}footer .fnote{font-size:13px;color:#9fb8b3;m
       <table><thead><tr><th data-k="posted">Posted</th><th data-k="title">Comment / organization</th><th data-k="specialty">Specialty</th><th data-k="stance">Stance</th></tr></thead><tbody id="tbody"></tbody></table>
       <button class="more" id="moreBtn">Show more</button></div></section>
 
-  <section><div class="sec-head"><p class="eyebrow">Help shape the tracker</p><h2 class="sec-h">Suggest a topic to track</h2>
-    <p class="hint">See something we're missing &mdash; from any point of view? Tell us and we'll consider adding it to the watch-list.</p></div>
-    <div class="panel"><div class="suggest">
-      <input id="sgTopic" placeholder="Topic or keyword (e.g. pelvic floor therapy)"><input id="sgWhy" placeholder="Why it matters (optional)">
-      <input id="sgEmail" type="email" placeholder="Your email (optional)"><button class="btn btn-pink" id="sgBtn" style="padding:11px 22px;font-size:14px">Send suggestion &rarr;</button></div>
-      <div id="sgMsg" class="hint" style="margin:12px 0 0"></div></div></section>
 </main>
-<footer><div class="inner"><div class="wordmark"><img src="https://cdn.prod.website-files.com/68f026f80cae49183f869cc9/68f026f80cae49183f869d84_asset-logo-51-white.svg" alt="51&amp;" style="height:34px;width:auto"></div><div class="fnote" id="foot"></div></div></footer>
+<footer><div class="inner"><div class="wordmark"><svg viewBox="0 0 228 106" style="height:34px;width:auto;display:block" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M138.507 73.4236C140.119 84.9335 151.872 92.8166 164.757 91.0323C168.994 90.4458 172.821 88.8823 175.998 86.6449C172.591 96.4587 163.639 104.132 152.259 105.709C136.333 107.915 121.692 97.3435 119.557 82.098C117.422 66.8525 128.602 52.7049 144.527 50.4997C146.678 50.2015 148.803 50.1455 150.879 50.2958C142.241 38.0905 138.235 30.1499 138.235 22.5336C138.235 7.28118 152.931 0 169.49 0C186.05 0 198.653 9.04243 198.653 17.8073C198.653 26.5721 189.38 35.1039 175.407 37.4609C175.407 37.4609 181.587 27.7399 181.587 17.2805C181.587 6.82112 174.611 3.61605 169.389 3.61605C164.312 3.61605 157.533 6.82112 157.533 17.2805C157.533 27.7399 165.187 33.8242 173.57 42.8459C181.953 51.8676 228 103.844 228 103.844H191.464C173.434 79.8261 160.37 63.5654 151.698 51.4459C142.813 55.4868 137.219 64.2179 138.508 73.4244L138.507 73.4236ZM31.6715 39.0305H29.2667V27.687H63.7585V2.09173H0V63.172C8.03988 59.9723 15.2903 58.6635 20.9655 58.6635C30.7386 58.6635 36.4138 62.4451 36.4138 68.843C36.4138 75.3873 30.5813 79.4596 21.1236 79.4596C14.187 79.4596 7.88259 77.4238 0.000770989 72.7696V98.8012C8.81934 103.601 18.2462 105.927 28.2807 105.927C52.913 105.927 68.8779 91.6756 68.8779 70.7338C68.8779 51.2466 54.3193 39.0297 31.6722 39.0297L31.6715 39.0305ZM73.0443 27.3964H83.8983V103.892H113.144V2.09173H73.0451L73.0443 27.3964ZM203.478 54.3619C204.868 54.3619 207.008 54.9738 209.446 58.3307C211.884 61.6883 213.989 63.2809 216.93 63.2809C222.943 63.2809 226.714 58.678 226.714 53.8551C226.714 49.0322 222.938 40.8822 210.51 40.8822C198.082 40.8822 194.743 51.4467 194.237 60.7444C197.648 56.472 200.757 54.3619 203.478 54.3619Z" fill="#f8fbf3"/></svg></div><div class="fnote" id="foot"></div></div></footer>
 <div class="tt" id="tip"></div>
 <script>
 const DATA=/*__DATA__*/;const $=s=>document.querySelector(s);
