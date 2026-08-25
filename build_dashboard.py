@@ -154,7 +154,7 @@ footer .wordmark{margin-bottom:12px}footer .fnote{font-size:13px;color:#9fb8b3;m
   <h1>The complete public record on CY2027, <span class="accent">read through a women's-health lens.</span></h1>
   <p class="lede">We read every public comment on the Physician Fee Schedule &mdash; <b id="heroCount"></b>, inline text and attached letters &mdash; and tag each one, from every perspective in the debate, for specialty, stance, topic, and women's-health relevance. Our categories are descriptive, not political.</p>
   <div class="cta-row">
-    <a class="btn btn-pink" href="https://www.regulations.gov/commenton/CMS-2026-2377-0001" target="_blank" rel="noopener">File a comment &rarr;</a>
+    <a class="btn btn-pink" href="https://medicarefeeschedule.51and.com/file" target="_blank" rel="noopener">File a comment &rarr;</a>
     <a class="btn btn-ghost" href="https://medicarefeeschedule.51and.com/" target="_blank" rel="noopener">Read 51&amp;'s full analysis &darr;</a></div>
 </div></header>
 <div class="kpiband"><div class="inner"><div class="kpis" id="kpis"></div></div></div>
