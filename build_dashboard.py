@@ -15,6 +15,21 @@ FONT_SEMI=fb("68f026f80cae49183f869d82_UncutSans-Semibold.woff2")
 HTML=r"""<!DOCTYPE html><html lang="en" data-theme="light"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CY2027 Physician Fee Schedule — Comment Tracker | 51&amp;</title>
+<meta name="description" content="51& reads and tags every public comment on Medicare's proposed CY2027 Physician Fee Schedule — who showed up, what they said, and where women's health appears. Updated daily through September 14, 2026.">
+<link rel="icon" href="https://cdn.prod.website-files.com/68f026f80cae49183f869cc9/68f026f80cae49183f869dad_asset-icon-asterix-pink.svg">
+<meta property="og:title" content="The complete public record on CY2027, read through a women's-health lens">
+<meta property="og:description" content="51& reads and tags every public comment on Medicare's proposed 2027 payment rule — who's commenting, what they say, and where women's health shows up. Updated daily through September 14.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="51&">
+<meta property="og:url" content="https://tracker.51and.com/">
+<meta property="og:image" content="https://medicarefeeschedule.51and.com/og-comments.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Medicare is deciding how women's health gets paid for in 2027. You have until Sept 14 to shape it.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The complete public record on CY2027, read through a women's-health lens">
+<meta name="twitter:description" content="Every public comment on Medicare's proposed 2027 rule, read and tagged daily — through a women's-health lens.">
+<meta name="twitter:image" content="https://medicarefeeschedule.51and.com/og-comments.png">
 <style>
 @font-face{font-family:UncutSans;font-weight:400;font-display:swap;src:url(data:font/woff2;base64,__FONT_REG__) format('woff2');}
 @font-face{font-family:UncutSans;font-weight:600;font-display:swap;src:url(data:font/woff2;base64,__FONT_SEMI__) format('woff2');}
