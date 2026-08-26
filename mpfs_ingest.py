@@ -148,13 +148,29 @@ def last_watermark(c):
     row = c.execute("SELECT MAX(last_modified_date) FROM comments").fetchone()
     return row[0] if row and row[0] else None
 
+def fmt_since(ts):
+    """regs.gov date filters require 'yyyy-MM-dd HH:mm:ss' in US EASTERN time;
+    ISO strings with 'T'/'Z' get HTTP 400 'Invalid date format'. Convert, and
+    subtract a 1-day overlap so batch-posted comments straddling the watermark
+    are never missed (skip-by-ID makes the overlap free)."""
+    if not ts: return None
+    from zoneinfo import ZoneInfo
+    dt = datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
+    if dt.tzinfo is None: dt = dt.replace(tzinfo=timezone.utc)
+    dt = dt.astimezone(ZoneInfo("America/New_York")) - timedelta(days=1)
+    return dt.strftime("%Y-%m-%d %H:%M:%S")
+
 # ---------- ingest ----------
 def list_comment_ids(limit=None, since=None):
     """Page through the docket's comments; return list of (id, lastModified)."""
     ids, page, last_elem = [], 1, None
+    # Sort NEWEST-first: the API hard-caps any listing at 20 pages x 250 = 5,000
+    # results, so ascending sort permanently hides new comments once the docket
+    # passes 5,000 (this froze the tracker at exactly 5,000 on 2026-08-22).
+    # Descending keeps the newest 5,000 always visible.
     params = {"filter[docketId]": DOCKET, "page[size]": 250,
-              "sort": "lastModifiedDate,documentId"}
-    if since: params["filter[lastModifiedDate][ge]"] = since
+              "sort": "-lastModifiedDate"}
+    if since: params["filter[lastModifiedDate][ge]"] = fmt_since(since)
     while True:
         p = dict(params); p["page[number]"] = page
         data = api_get(f"{API}/comments", p)
@@ -226,10 +242,16 @@ def run(mode="daily", limit=None, sleep=1.2):
     ids = [(cid, lm) for (cid, lm) in ids if cid not in existing]
     print(f"{before} listed; {before - len(ids)} unchanged (skipped); {len(ids)} to fetch", flush=True)
     new = upd = natt = 0
-    for i, (cid, _) in enumerate(ids, 1):
+    for i, (cid, lm) in enumerate(ids, 1):
         try:
             detail = fetch_detail(cid)
             status = upsert_comment(c, detail)
+            # The detail endpoint often omits lastModifiedDate (which is why the
+            # watermark stayed NULL); backfill it from the LIST response so
+            # last_watermark() finally works.
+            if lm:
+                c.execute("UPDATE comments SET last_modified_date=COALESCE(last_modified_date,?) WHERE id=?",
+                          (lm, cid))
             natt += len([x for x in detail.get("included", []) if x["type"]=="attachments"])
             new += status == "new"; upd += status == "updated"
             if i % 10 == 0 or i == len(ids):
