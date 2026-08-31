@@ -2,7 +2,7 @@
 """Download comment attachment PDFs, extract text (OCR fallback for scanned),
 store in attachments.extracted_text. Regulations.gov's CloudFront blocks the
 default agent, so we send a browser UA. Idempotent: skips rows already extracted."""
-import sqlite3, subprocess, os, time, tempfile, glob
+import sqlite3, subprocess, os, time, tempfile, glob, argparse
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 PDFDIR = os.path.join(BASE, "pdfs"); os.makedirs(PDFDIR, exist_ok=True)
@@ -39,7 +39,8 @@ def extract_text(pdf):
         pass
     return (txt or "").strip(), "text_thin"
 
-def main():
+def main(max_minutes=None):
+    deadline = (time.monotonic() + max_minutes * 60) if max_minutes is not None else None
     db = sqlite3.connect(os.path.join(BASE, "corpus.db")); db.row_factory = sqlite3.Row
     rows = db.execute("SELECT rowid,* FROM attachments WHERE file_format='pdf'").fetchall()
     done = skipped = ocr_n = fail = 0
@@ -47,6 +48,10 @@ def main():
     for r in rows:
         if r["extracted_text"] and len(r["extracted_text"]) > 50:
             skipped += 1; continue
+        if deadline and time.monotonic() > deadline:
+            print(f"  time budget ({max_minutes} min) reached — stopping; remaining PDFs "
+                  f"extract on the next run (idempotent)", flush=True)
+            break
         dest = os.path.join(PDFDIR, f"{r['comment_id']}_{r['id']}.pdf")
         if not (os.path.exists(dest) and os.path.getsize(dest) > 1000):
             code = download(r["source_url"], dest)
@@ -73,4 +78,7 @@ def main():
     db.close()
 
 if __name__ == "__main__":
-    main()
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--max-minutes", type=float, default=None,
+                    help="stop after this many minutes; remaining PDFs carry to the next run")
+    main(ap.parse_args().max_minutes)

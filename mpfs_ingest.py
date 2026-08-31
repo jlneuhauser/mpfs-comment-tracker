@@ -227,10 +227,12 @@ def upsert_comment(c, detail):
             fmts[0].get("size") if fmts else None, now))
     return "updated" if exists else "new"
 
-def run(mode="daily", limit=None, sleep=1.2):
+def run(mode="daily", limit=None, sleep=1.2, max_minutes=None):
     c = init_db()
     since = last_watermark(c) if mode == "daily" else None
-    print(f"Mode={mode}  since={since}  key={'REAL' if KEY!='DEMO_KEY' else 'DEMO'}", flush=True)
+    deadline = (time.monotonic() + max_minutes * 60) if max_minutes is not None else None
+    print(f"Mode={mode}  since={since}  budget={max_minutes}min  "
+          f"key={'REAL' if KEY!='DEMO_KEY' else 'DEMO'}", flush=True)
     ids = list_comment_ids(limit=limit, since=since)
     # Skip comments already stored — by ID, in BOTH modes. The seed corpus has NULL
     # last_modified_date, so a timestamp comparison would re-fetch everything; skipping by
@@ -240,9 +242,21 @@ def run(mode="daily", limit=None, sleep=1.2):
     existing = {r[0]: r[1] for r in c.execute("SELECT id, last_modified_date FROM comments").fetchall()}
     before = len(ids)
     ids = [(cid, lm) for (cid, lm) in ids if cid not in existing]
+    # Fetch OLDEST-first (the listing is sorted newest-first). With a time budget,
+    # a partial run then advances the last_modified watermark CONTIGUOUSLY: every
+    # comment older than the watermark is already stored, so the next run's
+    # since-filter can never skip an unfetched comment. (Newest-first + an early
+    # stop would push the watermark past the unfetched middle of the backlog.)
+    ids.reverse()
     print(f"{before} listed; {before - len(ids)} unchanged (skipped); {len(ids)} to fetch", flush=True)
     new = upd = natt = 0
+    stopped_early = 0
     for i, (cid, lm) in enumerate(ids, 1):
+        if deadline and time.monotonic() > deadline:
+            stopped_early = len(ids) - (i - 1)
+            print(f"  time budget ({max_minutes} min) reached — stopping cleanly with "
+                  f"{stopped_early} of {len(ids)} still to fetch (next run resumes)", flush=True)
+            break
         try:
             detail = fetch_detail(cid)
             status = upsert_comment(c, detail)
@@ -259,16 +273,20 @@ def run(mode="daily", limit=None, sleep=1.2):
             time.sleep(sleep)
         except Exception as e:
             print(f"  ERROR {cid}: {e}", flush=True)
+    notes = f"time-budget stop: {stopped_early} listed comments left for next run" if stopped_early else None
     c.execute("""INSERT INTO ingestion_runs (run_at,mode,new_comments,updated_comments,
         new_attachments,total_seen,notes) VALUES (?,?,?,?,?,?,?)""",
-        (datetime.now(timezone.utc).isoformat(), mode, new, upd, natt, len(ids), None))
+        (datetime.now(timezone.utc).isoformat(), mode, new, upd, natt, len(ids), notes))
     c.commit(); c.close()
-    print(f"Done. new={new} updated={upd} attachments={natt}")
+    print(f"Done. new={new} updated={upd} attachments={natt} remaining={stopped_early}")
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--mode", default="daily", choices=["daily", "backfill"])
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--sleep", type=float, default=1.2)
+    ap.add_argument("--max-minutes", type=float, default=None,
+                    help="stop fetching after this many minutes; partial progress is kept "
+                         "and the next run resumes (keeps CI runs under GitHub's 6h limit)")
     a = ap.parse_args()
-    run(a.mode, a.limit, a.sleep)
+    run(a.mode, a.limit, a.sleep, a.max_minutes)

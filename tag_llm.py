@@ -2,7 +2,7 @@
 """Headless LLM tagging via the Anthropic API for any comments not yet tagged.
 Reuses tag_schema.md (same schema the interactive tagging used). Tags on full
 text (inline + attachment). Env: ANTHROPIC_API_KEY, optional MODEL."""
-import sqlite3, json, os, sys, time, urllib.request, urllib.error
+import sqlite3, json, os, sys, time, urllib.request, urllib.error, argparse
 from datetime import datetime, timezone
 
 BASE = os.path.dirname(os.path.abspath(__file__))
@@ -57,13 +57,18 @@ def eff_text(db, cid, ctext):
     if att: t += "\n\n=== ATTACHED LETTER ===\n" + att
     return t[:9000]
 
-def main():
+def main(max_minutes=None):
     if not KEY: sys.exit("ANTHROPIC_API_KEY not set")
+    deadline = (time.monotonic() + max_minutes * 60) if max_minutes is not None else None
     db = sqlite3.connect(os.path.join(BASE, "corpus.db")); db.row_factory = sqlite3.Row
     rows = db.execute("select id,organization,category,comment_text from comments where llm_stance is null").fetchall()
     print(f"comments to tag: {len(rows)}")
     now = datetime.now(timezone.utc).isoformat()
     for i in range(0, len(rows), BATCH):
+        if deadline and time.monotonic() > deadline:
+            print(f"  time budget ({max_minutes} min) reached — stopping; {len(rows)-i} comments "
+                  f"stay untagged and are picked up next run", flush=True)
+            break
         chunk = rows[i:i+BATCH]
         payload = [{"id": r["id"], "organization": r["organization"] or "", "category": r["category"] or "",
                     "text": eff_text(db, r["id"], r["comment_text"])} for r in chunk]
@@ -86,4 +91,7 @@ def main():
     db.close()
 
 if __name__ == "__main__":
-    main()
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--max-minutes", type=float, default=None,
+                    help="stop after this many minutes; untagged comments carry to the next run")
+    main(ap.parse_args().max_minutes)
