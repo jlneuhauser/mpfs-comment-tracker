@@ -2,7 +2,10 @@ name: MPFS daily tracker
 
 on:
   schedule:
-    - cron: "0 11 * * *"      # 11:00 UTC daily (~7am ET). Adjust if you like.
+    # Twice daily to work through the backlog faster (regs.gov caps us at
+    # 1,000 API calls/hr, so one run can only ingest ~2,500-3,000 comments).
+    # Off-peak minute — GitHub delays crons on popular slots like :00.
+    - cron: "43 4,16 * * *"
   workflow_dispatch: {}         # lets you run it manually from the Actions tab
 
 permissions:
@@ -17,6 +20,7 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
+    timeout-minutes: 355        # under GitHub's 360 hard kill so cleanup steps still run
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
@@ -30,6 +34,11 @@ jobs:
       - name: Install Python deps
         run: pip install -r requirements.txt
       - name: Run the daily pipeline
+        # A STEP timeout (unlike the 6h job kill) fails just this step, so the
+        # always() commit + Pages deploy below still run and save whatever the
+        # pipeline managed to ingest/tag. The in-script budgets (~310 min total)
+        # should finish well before this; it's a backstop.
+        timeout-minutes: 340
         env:
           REGS_API_KEY:         ${{ secrets.REGS_API_KEY }}
           ANTHROPIC_API_KEY:    ${{ secrets.ANTHROPIC_API_KEY }}
