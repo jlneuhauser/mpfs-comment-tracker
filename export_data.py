@@ -319,6 +319,19 @@ def main():
 
     attach_comments=db.execute("select count(distinct comment_id) from attachments where length(extracted_text)>50").fetchone()[0]
 
+    # live docket size (1 API request; runs in CI where the key exists — page then
+    # shows "X read of Y filed" honestly while the pipeline catches up)
+    docket_total=None
+    if os.environ.get("REGS_API_KEY"):
+        try:
+            import requests as _rq
+            docket_total=_rq.get("https://api.regulations.gov/v4/comments",
+                params={"filter[docketId]":TAX["docket"],"page[size]":5,
+                        "api_key":os.environ["REGS_API_KEY"]},timeout=30
+                ).json()["meta"]["totalElements"]
+        except Exception:
+            pass
+
     # --- watchlist scoreboard (societies may show absence; companies celebrate-only)
     def _norm(s): return re.sub(r"[^a-z0-9& ]"," ",(s or "").lower()).strip()
     all_filed_names=[]  # (normalized, original, id, via) for org filers and co-signers
@@ -425,7 +438,8 @@ def main():
             "tier":{"core":tier_counts.get("core",0),"stakes":tier_counts.get("stakes",0),"general":tier_counts.get("general",0)},
             "n_specialties":len([k for k in spec_counts if k not in("Other/Unclear",)]),
             "attach_comments":attach_comments,
-            "campaign_submissions":camp_submissions,"original":total-camp_submissions,"n_campaigns":len(campaigns)},
+            "campaign_submissions":camp_submissions,"original":total-camp_submissions,"n_campaigns":len(campaigns),
+            "docket_total":docket_total},
         "docket":{
             "specialties":top(spec_counts,15),
             "stance":[{"key":k,"label":STANCE_PLAIN.get(k,k),"count":stance_counts.get(k,0)} for k in ["oppose","support","mixed","neutral_informational"]],

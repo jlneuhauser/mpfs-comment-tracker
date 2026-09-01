@@ -345,7 +345,7 @@ const GC=DATA.gcode||{counts:{},samples:[]};const gFor=GC.counts.adopt_cpt||0,gK
 const WLIST=DATA.watchlist||[];const socAll=WLIST.filter(w=>w.group==='wh_society'),socOn=socAll.filter(w=>w.filed);
 const M25=DATA.mod25||{total:0,wh:0,by_spec:[]};
 const kpis=[
- {v:fmt(M.total),l:"Comments read — the whole docket",x:"Docket "+M.docket+", updated daily",f:{}},
+ {v:fmt(M.total),l:"Comments read — the whole docket",x:(M.docket_total&&M.docket_total>M.total)?("of "+fmt(M.docket_total)+" filed so far — we're catching up as the surge lands"):("Docket "+M.docket+", updated daily"),f:{}},
  {v:fmt(M.wh_relevant),l:"Women's-health–relevant comments",x:M.tier.core+" directly about it · "+M.tier.stakes+" hidden stakes",cls:"wh",f:{tier:"wh"}},
  {v:fmt(gFor)+"–"+fmt(gKeep),l:"New maternity codes vs. G-code snap-back",x:"the docket's verdict so far",cls:"wh",go:"#gcode"},
  {v:socOn.length+" of "+socAll.length,l:"Women's-health societies on the record",x:"major letters land near the deadline",cls:"crit",go:"#whoSpeaks"},
