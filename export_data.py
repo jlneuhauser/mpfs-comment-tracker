@@ -126,6 +126,20 @@ def norm_theme(t):
         if _re.search(pat, tl): return lab
     return "Other asks"
 
+_ORGISH = _re.compile(r"(?i)\b(assoc|societ|college|academ|center|centre|coalition|alliance|institute|hospital|health|medical|clinic|group|foundation|federation|network|partners|solutions|services|inc\b|llc|corp|pllc|pc\b)\b")
+def _dedupe_coalitions(letters):
+    """Keep letters whose co-signers are organizations (not individual clinicians
+    at the same practice), and collapse near-identical repeat filings."""
+    out, seen = [], set()
+    for c in sorted(letters, key=lambda c: -len(c["co"])):
+        co = [x for x in c["co"] if _ORGISH.search(x or "")]
+        if not co: continue
+        key = ((c["org"] or "").strip().lower(), tuple(sorted(x.strip().lower() for x in co)))
+        if key in seen: continue
+        seen.add(key)
+        out.append({**c, "co": co})
+    return out[:10]
+
 def top(counter, n, plain=None, key_is_plain=False):
     out=[]
     for k,c in counter.most_common(n):
@@ -145,6 +159,7 @@ def main():
     org_roster=defaultdict(lambda:{"n":0,"wh":0,"type":"unknown","ids":[],"stances":Counter()})
     coalition_letters=[]; gcode_counts=Counter(); gcode_samples=[]
     rfi_theme=defaultdict(Counter); rfi_ask_samples=defaultdict(list); rfi_wh_asks=Counter()
+    rfi_form=Counter(); rfi_wh_form=Counter()
     mod25_spec=Counter(); mod25_wh=0; mod25_total=0; mod25_camp=0
     def _open(txt):
         t=re.sub(r"\s+"," ",(txt or "")).strip()
@@ -182,6 +197,9 @@ def main():
         for rf in jl(r["llm_rfi"]):
             rfi_total[rf]+=1
             if whx: rfi_wh[rf]+=1
+            if is_form:
+                rfi_form[rf]+=1
+                if whx: rfi_wh_form[rf]+=1
         if tier=="stakes" and (r["llm_stakes_note"] or "").strip():
             stakes_list.append({"id":r["id"],"org":(r["organization"] or "").strip(),"specialty":spec,
                 "note":r["llm_stakes_note"].strip(),"quote":(r["llm_quote"] or "").strip(),
@@ -308,6 +326,7 @@ def main():
         rfi_map.append({"key":k,"label":RFI_PLAIN.get(k,k),"tech":RFI_TECH.get(k,""),
             "asked":RFI_ASKED.get(k,""),"why_wh":RFI_WHY_WH.get(k,""),
             "total":rfi_total.get(k,0),"wh":rfi_wh.get(k,0),"wh_asks":rfi_wh_asks.get(k,0),
+            "form":rfi_form.get(k,0),"wh_form":rfi_wh_form.get(k,0),
             "themes":[{"t":t,"n":n} for t,n in rfi_theme.get(k,Counter()).most_common(6)],
             "asks":samples[:5]})
 
@@ -344,7 +363,7 @@ def main():
         "watchlist":watch_out,
         "wh_voices":wh_voices,
         "filed_companies":filed_companies,
-        "coalitions":sorted(coalition_letters,key=lambda c:-len(c["co"]))[:10],
+        "coalitions":_dedupe_coalitions(coalition_letters),
         "gcode":gcode_block,
         "mod25":mod25_block,
         "campaigns":campaigns[:12],
