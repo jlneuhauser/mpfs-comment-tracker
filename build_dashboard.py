@@ -222,7 +222,7 @@ footer .wordmark{margin-bottom:12px}footer .fnote{font-size:13px;color:#9fb8b3;m
 <header class="hero"><div class="inner">
   <p class="eyebrow">Live comment tracker &middot; Docket CMS-2026-2377 &middot; Updated daily</p>
   <h1>Getting women's health <span class="accent">on the record.</span></h1>
-  <p class="lede">Public comment shapes Medicare's 2027 physician-payment rule, which will be felt well beyond Medicare. We're reading every comment as it lands (<b id="heroCount"></b> so far, letters and attachments in full) and tracking whether women's health is being heard.</p>
+  <p class="lede">Public comment shapes Medicare's 2027 physician-payment rule, which will be felt well beyond Medicare. We're reading every comment as it lands and tracking whether women's health is being heard.</p>
   <div class="cta-row">
     <a class="btn btn-pink" href="https://medicarefeeschedule.51and.com/file" target="_blank" rel="noopener">File a comment &rarr;</a>
     <a class="btn btn-ghost" href="https://medicarefeeschedule.51and.com/" target="_blank" rel="noopener">Read 51&amp;'s full analysis &darr;</a></div>
@@ -342,7 +342,7 @@ function hideTip(){tip.style.opacity=0;}
 const themeBtn=$("#themeBtn");function setThemeLabel(){themeBtn.textContent=document.documentElement.dataset.theme==="dark"?"☀ Light mode":"☾ Dark mode";}setThemeLabel();themeBtn.onclick=()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==="dark"?"light":"dark";setThemeLabel();renderTimeline();};
 const M=DATA.meta,D=DATA.docket,W=DATA.wh;
 const days=Math.max(0,Math.ceil((new Date(M.deadline+"T23:59:59Z")-new Date())/864e5));
-$("#deadlineDays").textContent=days+" days left.";$("#heroCount").textContent=fmt(M.total)+" comments";
+$("#deadlineDays").textContent=days+" days left.";
 $("#attachN").textContent=fmt(M.attach_comments);
 const oppose=(D.stance.find(s=>s.key==='oppose')||{}).count||0;
 const GC=DATA.gcode||{counts:{},samples:[]};const gFor=GC.counts.adopt_cpt||0,gKeep=GC.counts.keep_gcodes||0,gMix=GC.counts.mixed||0;
