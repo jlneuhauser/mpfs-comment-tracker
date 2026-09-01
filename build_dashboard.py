@@ -60,11 +60,12 @@ a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
 .btn-pink{background:var(--pink);color:#08312f}.btn-pink:hover{background:#ff9cc2;text-decoration:none}
 .btn-ghost{background:transparent;color:#f8fbf3;border-color:rgba(248,251,243,.4)}.btn-ghost:hover{border-color:#fff;text-decoration:none}
 .kpiband{background:var(--ink);padding:26px 0 46px}
-.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+@media(max-width:1020px){.kpis{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:820px){.kpis{grid-template-columns:repeat(2,1fr)}.hero h1{font-size:36px}}
 .kpi{background:rgba(248,251,243,.06);border:1px solid rgba(248,251,243,.12);border-radius:16px;padding:18px}
 .kpi.click{cursor:pointer}.kpi.click:hover{border-color:var(--pink)}
-.kpi .v{font-size:33px;font-weight:600;letter-spacing:-.02em;line-height:1;color:#f8fbf3}
+.kpi .v{font-size:29px;font-weight:600;letter-spacing:-.02em;line-height:1;color:#f8fbf3}
 .kpi .l{color:#bcd0cb;font-size:12.5px;margin-top:8px;font-weight:600}.kpi .x{color:#8ba39f;font-size:11.5px;margin-top:4px}
 .kpi.wh .v{color:#5fd3c9}.kpi.crit .v{color:var(--pink)}
 main{padding:8px 0 40px}
@@ -344,6 +345,7 @@ const GC=DATA.gcode||{counts:{},samples:[]};const gFor=GC.counts.adopt_cpt||0,gK
 const WLIST=DATA.watchlist||[];const socAll=WLIST.filter(w=>w.group==='wh_society'),socOn=socAll.filter(w=>w.filed);
 const M25=DATA.mod25||{total:0,wh:0,by_spec:[]};
 const kpis=[
+ {v:fmt(M.total),l:"Comments read — the whole docket",x:"Docket "+M.docket+", updated daily",f:{}},
  {v:fmt(M.wh_relevant),l:"Women's-health–relevant comments",x:M.tier.core+" directly about it · "+M.tier.stakes+" hidden stakes",cls:"wh",f:{tier:"wh"}},
  {v:fmt(gFor)+"–"+fmt(gKeep),l:"New maternity codes vs. G-code snap-back",x:"the docket's verdict so far",cls:"wh",go:"#gcode"},
  {v:socOn.length+" of "+socAll.length,l:"Women's-health societies on the record",x:"major letters land near the deadline",cls:"crit",go:"#whoSpeaks"},
