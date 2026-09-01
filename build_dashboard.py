@@ -149,8 +149,13 @@ section{margin:0 0 26px}
 .rficard{border:1px solid var(--border);border-radius:14px;background:var(--page);margin-bottom:12px;overflow:hidden}
 .rficard summary{list-style:none;cursor:pointer;padding:14px 18px}
 .rficard summary::-webkit-details-marker{display:none}
-.rficard .rline{display:grid;grid-template-columns:230px 1fr 96px 20px;gap:12px;align-items:center}
-@media(max-width:640px){.rficard .rline{grid-template-columns:1fr 84px 18px}.rficard .rline .rtrackwrap{display:none}}
+.rficard .rline{display:grid;grid-template-columns:230px 1fr 96px auto;gap:12px;align-items:center}
+@media(max-width:640px){.rficard .rline{grid-template-columns:1fr 84px auto}.rficard .rline .rtrackwrap{display:none}}
+.digbtn{display:inline-flex;align-items:center;gap:6px;background:var(--pink);color:#08312f;border-radius:100px;padding:8px 16px;font-size:12.5px;font-weight:600;white-space:nowrap}
+.rficard summary:hover .digbtn{background:#ff9cc2}
+details[open] .digbtn span:first-child{display:none}
+details[open] .digbtn::before{content:"Close"}
+details[open] .digbtn{background:transparent;border:1px solid var(--border);color:var(--text-2)}
 .rficard .body{padding:4px 18px 18px;border-top:1px solid var(--border)}
 .rfth{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 2px}
 .rfth .chip b{color:var(--teal)}
@@ -236,6 +241,10 @@ footer .wordmark{margin-bottom:12px}footer .fnote{font-size:13px;color:#9fb8b3;m
     </div>
     <div class="push" id="pushGrid"></div></div></section>
 
+  <section><div class="sec-head"><p class="eyebrow">Keyword tracker</p><h2 class="sec-h">Women's-health terms in the text</h2>
+    <p class="hint">How often each term appears across the docket. Click a keyword to read those comments.</p></div>
+    <div class="panel"><div class="kwrap" id="kwrap"></div></div></section>
+
   <section id="gcode"><div class="sec-head"><p class="eyebrow">The maternity-codes verdict</p><h2 class="sec-h">The G-code question: the docket has answered</h2>
     <p class="hint">CMS asked whether to adopt the new 2027 maternity CPT codes or keep the old bundle alive through &ldquo;GMAT&rdquo; G-codes. Every comment that engages the question, counted. Click a number to read them.</p></div>
     <div class="panel feature">
@@ -260,13 +269,8 @@ footer .wordmark{margin-bottom:12px}footer .fnote{font-size:13px;color:#9fb8b3;m
     <p class="hint">These comments never mention women's health as their topic &mdash; but each carries a specific, nameable consequence for women's care. This is the connective tissue most readers miss.</p></div>
     <div class="panel"><div class="stakes" id="stakesGrid"></div><button class="more" id="stakesMore" style="display:none">Show all <span id="stakesN"></span> &darr;</button></div></section>
 
-  <div class="grid2">
-    <section><div class="sec-head"><p class="eyebrow">Directly about women's health</p><h2 class="sec-h">What the core comments cover</h2><p class="hint">Click any bar to filter the browser below.</p></div>
-      <div class="panel"><div class="bars" id="topicBars"></div></div></section>
-    <section><div class="sec-head"><p class="eyebrow">Keyword tracker</p><h2 class="sec-h">Women's-health terms in the text</h2>
-      <p class="hint">Click a keyword to filter the browser.</p></div>
-      <div class="panel"><div class="kwrap" id="kwrap"></div></div></section>
-  </div>
+  <section><div class="sec-head"><p class="eyebrow">Directly about women's health</p><h2 class="sec-h">What the core comments cover</h2><p class="hint">Click any bar to filter the browser below.</p></div>
+    <div class="panel"><div class="bars" id="topicBars"></div></div></section>
 
   <div class="layer"><div class="tag">The whole docket, in context</div>
     <h2>Who showed up, and what they said</h2>
@@ -453,7 +457,7 @@ $("#rfiWrap").innerHTML=RM.map((r,x)=>{
  return `<details class="rficard ${hot?'':''}" data-x="${x}"><summary><div class="rline">
    <div class="lab" style="text-align:left"><span class="pl" style="display:block;font-size:14px;color:${hot?'var(--magenta)':'var(--ink)'};font-weight:600">${esc(r.label)}</span><span class="sub" style="display:block;font-size:10.5px;color:var(--muted)">${esc(r.tech)}</span></div>
    <div class="rtrackwrap"><div class="rfitrack"><div class="tot" style="width:${tw}%"></div><div class="whb" style="width:${ww}%"></div></div></div>
-   <div class="rval"><b>${r.wh}</b> WH / ${r.total}</div><span class="caret">&#9656;</span></div></summary>
+   <div class="rval"><b>${r.wh}</b> WH / ${r.total}</div><span class="digbtn"><span>Dig in deeper</span> <span class="caret">&#9656;</span></span></div></summary>
   <div class="body">
    <div class="asked">${esc(r.asked)}</div>
    ${(r.decoder||[]).length?`<div class="decoder">${r.decoder.map(d=>`<div class="dt"><b>${esc(d.t)}</b> &mdash; ${esc(d.d)}.</div>`).join("")}</div>`:""}
