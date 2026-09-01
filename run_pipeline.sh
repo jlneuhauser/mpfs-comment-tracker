@@ -11,6 +11,7 @@ cd "$(dirname "$0")"
 ING_MIN="${INGEST_MAX_MINUTES:-180}"
 PDF_MIN="${PDF_MAX_MINUTES:-40}"
 TAG_MIN="${TAG_MAX_MINUTES:-90}"
+EXTRA_MIN="${EXTRA_MAX_MINUTES:-25}"
 
 # hard_stop = backstop around the in-script budgets: if a step hangs past its
 # budget (stuck HTTP call, OCR runaway), SIGTERM it and CONTINUE the pipeline,
@@ -45,6 +46,11 @@ hard_stop "${TAG_MIN:+$((${TAG_MIN%.*}+15))}" python3 tag_llm.py ${TAG_MIN:+--ma
 
 echo "== 4b. detect template / form-letter campaigns =="
 python3 dedupe.py
+
+echo "== 4c. second-pass tags: orgs, G-code stance, RFI asks, watchlist verification (budget: ${EXTRA_MIN}m) =="
+# note: verifies watch-hit candidates inserted by the PREVIOUS run's export step,
+# so a brand-new watchlist match shows as "Filed" one run (<=12h) after ingest.
+hard_stop "${EXTRA_MIN:+$((${EXTRA_MIN%.*}+10))}" python3 tag_extra.py ${EXTRA_MIN:+--max-minutes "$EXTRA_MIN"} || echo "!! tag_extra failed — dims stay stale, next run retries"
 
 echo "== 5. regenerate dashboard =="
 python3 export_data.py

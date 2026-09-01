@@ -1,0 +1,144 @@
+#!/usr/bin/env python3
+"""Second-pass tagging for the women's-health-first tracker (added 2026-09-01).
+Backfilled in-session for the first 7,516 comments; this script keeps the four
+dimensions current for newly ingested comments:
+
+  1. org extraction   — who filed (letterhead/signature), org type, co-signers
+  2. G-code stance    — position on the maternity G-code "snap-back" question
+  3. RFI asks         — per-RFI: what the commenter wants CMS to do + theme
+  4. watch-hit verify — confirm watchlist scoreboard candidates are REAL filers
+                        (export_data.py inserts candidates into watch_hits;
+                        nothing shows as "Filed" until verified here)
+
+Idempotent; only rows missing a dimension are processed. Uses the same API
+plumbing as tag_llm.py. Env: ANTHROPIC_API_KEY, optional MODEL."""
+import sqlite3, json, os, re, sys, time, argparse
+from tag_llm import call as llm_call, BASE  # same batched API caller
+
+DB = os.path.join(BASE, "corpus.db")
+GPAT = r"G-?codes?|GMAT|snap.?back|maternity (?:code|bundle|global)|global (?:maternity|obstetric)|obstetric package|unbundl"
+ORGPAT = re.compile(r"(?i)\b(on behalf of|undersigned|we represent|our member|association|society of|college of|academy of|coalition|alliance|institute|federation|chamber of|medical center|health system|hospital|university|,\s*(inc|llc|corp)\b)")
+
+SYS_GCODE = ("CMS proposed replacing the global maternity bundle with new unbundled CPT 2027 maternity codes, but asked "
+    "whether to instead keep the old bundle via ~15 HCPCS G-codes (GMAT1-15, the 'snap-back'). For each comment, classify "
+    "gcode_stance: adopt_cpt (supports new CPT codes / opposes G-codes), keep_gcodes (keep the bundle/G-codes), mixed, "
+    "other_gcode (their G-code mention is a different topic entirely: telehealth/care-management G-codes etc.), unclear. "
+    "Also note: <=120 chars, their reason in their terms ('' if other_gcode/unclear). "
+    "Return ONLY a JSON array, one object per comment, same order: {\"id\",\"gcode_stance\",\"note\"}.")
+SYS_ORG = ("Identify WHO filed each public comment from letterhead/signature. org_name: canonical filing organization, "
+    "null for private individuals (a person mentioning an employer is an individual UNLESS explicitly writing on the org's "
+    "behalf; a named practice whose owner writes for it counts). org_type: medical_society|advocacy_nonprofit|company|"
+    "health_system_or_practice|government|academic|coalition|union|individual|unknown. co_signers: OTHER orgs explicitly "
+    "co-signing this SAME letter (cited orgs do NOT count; usually []). signer_title: signer's role for org letters else ''. "
+    "Return ONLY a JSON array, same order: {\"id\",\"org_name\",\"org_type\",\"co_signers\",\"signer_title\"}.")
+SYS_RFI = ("The CY2027 PFS rule contains five RFIs: primary_care_redesign (team-based primary care pay), "
+    "specialty_attribution_aco (attributing patients to specialists), awv_well_woman (Annual Wellness Visit redesign), "
+    "quality_data_infrastructure (quality measurement/MVPs), cpt_coding_valuation (how CPT codes get valued/RUC). "
+    "For each comment and EACH key in its rfi list: ask = <=140 chars, imperative, what they want CMS to DO on that topic; "
+    "theme = 2-5 word category label; wh_angle = true only if explicitly about women's health. "
+    "Return ONLY a JSON array, same order: {\"id\",\"asks\":{\"<key>\":{\"ask\",\"theme\",\"wh_angle\"}}}.")
+SYS_WATCH = ("You verify whether an organization ACTUALLY FILED a public comment, from the letter's opening text. "
+    "verified=true only if the letter is genuinely filed by (or explicitly on behalf of) the named org — letterhead, "
+    "'on behalf of', or signature. Merely citing the org, quoting its position, or attaching one of its old documents "
+    "is NOT filing. Return ONLY a JSON array, same order: {\"id\",\"org\",\"verified\":true|false}.")
+
+
+def eff(db, cid, ctext, limit=9000):
+    att = db.execute("select group_concat(extracted_text, char(10)||char(10)) from attachments "
+                     "where comment_id=? and length(extracted_text)>50", (cid,)).fetchone()[0]
+    t = (ctext or "").strip()
+    if att: t += "\n\n=== ATTACHED LETTER ===\n" + att
+    return t[:limit]
+
+
+def windows(text, pats, w=420, maxlen=1600):
+    spans, out = [], []
+    for m in re.finditer(pats, text, re.I):
+        s, e = max(0, m.start()-w), min(len(text), m.end()+w)
+        if spans and s <= spans[-1][1]: spans[-1] = (spans[-1][0], e)
+        else: spans.append((s, e))
+    for s, e in spans:
+        out.append(text[s:e])
+        if sum(len(x) for x in out) > maxlen: break
+    return " […] ".join(out)[:maxlen] or text[:1200]
+
+
+def run_batches(db, items, sys_prompt, apply, deadline, label, batch=10):
+    import tag_llm
+    tag_llm.SYS = sys_prompt  # reuse caller with our schema
+    done = 0
+    for i in range(0, len(items), batch):
+        if deadline and time.monotonic() > deadline:
+            print(f"  {label}: budget reached, {len(items)-i} left for next run"); break
+        out = llm_call(items[i:i+batch])
+        by = {o.get("id"): o for o in out if isinstance(o, dict)}
+        for it in items[i:i+batch]:
+            o = by.get(it["id"])
+            if o: apply(db, o); done += 1
+        db.commit()
+    print(f"  {label}: {done}/{len(items)}")
+
+
+def main(max_minutes=None):
+    deadline = (time.monotonic() + max_minutes*60) if max_minutes else None
+    db = sqlite3.connect(DB); db.row_factory = sqlite3.Row
+    for col in ("org_name TEXT","org_type TEXT","co_signers TEXT","signer_title TEXT",
+                "gcode_stance TEXT","gcode_note TEXT","rfi_asks TEXT"):
+        try: db.execute(f"ALTER TABLE comments ADD COLUMN {col}")
+        except sqlite3.OperationalError: pass
+
+    # 1. G-code stance for untagged candidates
+    g_items = []
+    for r in db.execute("SELECT id, comment_text, llm_summary FROM comments WHERE gcode_stance IS NULL"):
+        full = eff(db, r["id"], r["comment_text"], 30000)
+        if re.search(GPAT, full, re.I):
+            g_items.append({"id": r["id"], "summary": r["llm_summary"] or "", "snippet": windows(full, GPAT)})
+    run_batches(db, g_items, SYS_GCODE,
+        lambda db,o: db.execute("UPDATE comments SET gcode_stance=?, gcode_note=? WHERE id=?",
+            (o.get("gcode_stance") or "unclear", o.get("note") or "", o["id"])), deadline, "gcode")
+
+    # 2. org extraction for untyped candidates
+    o_items = []
+    for r in db.execute("""SELECT id, organization, category, submitter_name, comment_text, has_attachments
+                           FROM comments WHERE org_type IS NULL"""):
+        t = eff(db, r["id"], r["comment_text"], 30000)
+        if r["has_attachments"] or (r["organization"] or "").strip() or ORGPAT.search(t[:1200]) or ORGPAT.search(t[-900:]):
+            o_items.append({"id": r["id"], "regs_org_field": r["organization"] or "", "category": r["category"] or "",
+                "submitter": r["submitter_name"] or "", "opening": t[:1300], "closing": t[-800:] if len(t) > 2100 else ""})
+    run_batches(db, o_items, SYS_ORG,
+        lambda db,o: db.execute("UPDATE comments SET org_name=?, org_type=?, co_signers=?, signer_title=? WHERE id=?",
+            (o.get("org_name"), o.get("org_type") or "unknown", json.dumps(o.get("co_signers") or []),
+             o.get("signer_title") or "", o["id"])), deadline, "org")
+
+    # 3. RFI asks for RFI-tagged comments missing them
+    r_items = []
+    for r in db.execute("""SELECT id, llm_rfi, llm_summary, comment_text FROM comments
+                           WHERE llm_rfi IS NOT NULL AND llm_rfi NOT IN ('','[]') AND rfi_asks IS NULL"""):
+        try: keys = json.loads(r["llm_rfi"])
+        except Exception: keys = []
+        if not keys: continue
+        r_items.append({"id": r["id"], "rfi": keys, "summary": r["llm_summary"] or "",
+                        "text": eff(db, r["id"], r["comment_text"], 2800)})
+    run_batches(db, r_items, SYS_RFI,
+        lambda db,o: db.execute("UPDATE comments SET rfi_asks=? WHERE id=?",
+            (json.dumps(o.get("asks") or {}), o["id"])), deadline, "rfi_asks", batch=8)
+
+    # 4. verify watchlist scoreboard candidates (export_data.py inserts them)
+    try:
+        w_items = []
+        for r in db.execute("""SELECT w.watch_name, w.comment_id, c.comment_text FROM watch_hits w
+                               JOIN comments c ON c.id=w.comment_id WHERE w.verified IS NULL"""):
+            w_items.append({"id": r["comment_id"], "org": r["watch_name"],
+                            "opening": eff(db, r["comment_id"], r["comment_text"], 30000)[:900]})
+        run_batches(db, w_items, SYS_WATCH,
+            lambda db,o: db.execute("UPDATE watch_hits SET verified=? WHERE watch_name=? AND comment_id=?",
+                (1 if o.get("verified") else 0, o.get("org"), o["id"])), deadline, "watch_verify", batch=6)
+    except sqlite3.OperationalError:
+        print("  watch_verify: no watch_hits table yet (export_data.py creates it)")
+    db.close()
+
+
+if __name__ == "__main__":
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--max-minutes", type=float, default=None)
+    main(ap.parse_args().max_minutes)

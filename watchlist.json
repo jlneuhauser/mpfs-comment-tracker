@@ -1,0 +1,81 @@
+{
+  "_readme": "Expected filers for the who's-speaking-up scoreboard. Societies/associations may be shown as 'not yet on the record'; companies are ONLY shown when they file (celebrate list) — never called out for silence. Matching: case-insensitive against extracted org_name and co_signer lists; aliases are alternate spellings/acronyms (acronyms matched on word boundaries).",
+  "groups": [
+    {
+      "key": "wh_society",
+      "label": "Women's-health societies & advocacy",
+      "show_absent": true,
+      "orgs": [
+        {"name": "American College of Obstetricians and Gynecologists", "short": "ACOG", "aliases": ["ACOG"]},
+        {"name": "Society for Women's Health Research", "short": "SWHR", "aliases": ["SWHR"]},
+        {"name": "Society of Gynecologic Oncology", "short": "SGO", "aliases": ["SGO"]},
+        {"name": "Society for Maternal-Fetal Medicine", "short": "SMFM", "aliases": ["SMFM", "Maternal-Fetal Medicine"]},
+        {"name": "American Society for Reproductive Medicine", "short": "ASRM", "aliases": ["ASRM"]},
+        {"name": "American Urogynecologic Society", "short": "AUGS", "aliases": ["AUGS"]},
+        {"name": "AAGL", "short": "AAGL", "aliases": ["American Association of Gynecologic Laparoscopists"]},
+        {"name": "American College of Nurse-Midwives", "short": "ACNM", "aliases": ["ACNM", "Nurse-Midwives", "Nurse Midwives"]},
+        {"name": "Association of Women's Health, Obstetric and Neonatal Nurses", "short": "AWHONN", "aliases": ["AWHONN"]},
+        {"name": "National Association of Nurse Practitioners in Women's Health", "short": "NPWH", "aliases": ["NPWH", "Nurse Practitioners in Women's Health"]},
+        {"name": "The Menopause Society", "short": "Menopause Society", "aliases": ["North American Menopause Society", "NAMS"]},
+        {"name": "Policy Center for Maternal Mental Health", "short": "PC-MMH", "aliases": ["Maternal Mental Health"]},
+        {"name": "March of Dimes", "short": "March of Dimes", "aliases": []},
+        {"name": "National Partnership for Women & Families", "short": "Nat'l Partnership", "aliases": ["National Partnership for Women and Families"]},
+        {"name": "National Birth Equity Collaborative", "short": "NBEC", "aliases": ["NBEC"]},
+        {"name": "Black Mamas Matter Alliance", "short": "BMMA", "aliases": ["BMMA"]},
+        {"name": "HealthyWomen", "short": "HealthyWomen", "aliases": ["Healthy Women"]},
+        {"name": "Women's Health Access Matters", "short": "WHAM", "aliases": ["WHAM"]}
+      ]
+    },
+    {
+      "key": "big_medicine",
+      "label": "Big medicine & context filers",
+      "show_absent": true,
+      "orgs": [
+        {"name": "American Medical Association", "short": "AMA", "aliases": ["AMA"]},
+        {"name": "American Academy of Family Physicians", "short": "AAFP", "aliases": ["AAFP"]},
+        {"name": "American College of Physicians", "short": "ACP", "aliases": ["ACP"]},
+        {"name": "American College of Surgeons", "short": "ACS", "aliases": ["American College of Surgeons"]},
+        {"name": "American Nurses Association", "short": "ANA", "aliases": ["American Nurses Association"]},
+        {"name": "American Association of Nurse Practitioners", "short": "AANP", "aliases": ["AANP"]},
+        {"name": "American Academy of Physician Associates", "short": "AAPA", "aliases": ["AAPA", "Physician Assistants"]},
+        {"name": "American Hospital Association", "short": "AHA", "aliases": ["American Hospital Association"]},
+        {"name": "National Rural Health Association", "short": "NRHA", "aliases": ["NRHA"]},
+        {"name": "Medical Group Management Association", "short": "MGMA", "aliases": ["MGMA"]},
+        {"name": "American Academy of Dermatology", "short": "AAD", "aliases": ["American Academy of Dermatology"]},
+        {"name": "American Academy of Otolaryngology–Head and Neck Surgery", "short": "AAO-HNS", "aliases": ["AAO-HNS", "American Academy of Otolaryngology"]},
+        {"name": "American Academy of Ophthalmology", "short": "AAO", "aliases": ["American Academy of Ophthalmology"]}
+      ]
+    },
+    {
+      "key": "wh_company",
+      "label": "Women's-health companies",
+      "show_absent": false,
+      "orgs": [
+        {"name": "Maven Clinic", "short": "Maven", "aliases": ["Maven"]},
+        {"name": "Visana Health", "short": "Visana", "aliases": ["Visana"]},
+        {"name": "Midi Health", "short": "Midi", "aliases": ["Midi"]},
+        {"name": "Organon", "short": "Organon", "aliases": []},
+        {"name": "Hologic", "short": "Hologic", "aliases": []},
+        {"name": "Progyny", "short": "Progyny", "aliases": []},
+        {"name": "Kindbody", "short": "Kindbody", "aliases": []},
+        {"name": "Carrot Fertility", "short": "Carrot", "aliases": ["Carrot Fertility"]},
+        {"name": "Tia", "short": "Tia", "aliases": ["Tia Health", "Tia Clinic"]},
+        {"name": "Ovia Health", "short": "Ovia", "aliases": ["Ovia"]},
+        {"name": "Babyscripts", "short": "Babyscripts", "aliases": []},
+        {"name": "Pomelo Care", "short": "Pomelo", "aliases": ["Pomelo Care"]},
+        {"name": "Oula Health", "short": "Oula", "aliases": ["Oula"]},
+        {"name": "Millie", "short": "Millie", "aliases": ["Millie Clinic"]},
+        {"name": "Cayaba Care", "short": "Cayaba", "aliases": ["Cayaba"]},
+        {"name": "Herself Health", "short": "Herself Health", "aliases": []},
+        {"name": "Evernow", "short": "Evernow", "aliases": []},
+        {"name": "Gennev", "short": "Gennev", "aliases": []},
+        {"name": "Elektra Health", "short": "Elektra", "aliases": ["Elektra"]},
+        {"name": "Wildflower Health", "short": "Wildflower", "aliases": ["Wildflower"]},
+        {"name": "Natera", "short": "Natera", "aliases": []},
+        {"name": "Unified Women's Healthcare", "short": "Unified", "aliases": ["Unified Women's Health"]},
+        {"name": "Axia Women's Health", "short": "Axia", "aliases": ["Axia"]},
+        {"name": "Together Women's Health", "short": "Together WH", "aliases": ["Together Women's Health"]}
+      ]
+    }
+  ]
+}

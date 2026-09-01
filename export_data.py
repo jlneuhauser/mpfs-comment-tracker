@@ -79,6 +79,52 @@ REG_URL="https://www.regulations.gov/comment/{}"
 def jl(s):
     try: return json.loads(s) if s else []
     except: return []
+def jd(s):
+    try: return json.loads(s) if s else {}
+    except: return {}
+
+# --- RFI opportunity-map copy (what CMS asked + why it matters for women's health)
+RFI_ASKED = {
+    "cpt_coding_valuation": "CMS asked: how should we decide what a medical service is worth — and what evidence should count?",
+    "primary_care_redesign": "CMS asked: how should Medicare pay for continuous, team-based primary care instead of visit-by-visit?",
+    "awv_well_woman": "CMS asked: should the Annual Wellness Visit be redesigned — and what should a modern one include?",
+    "specialty_attribution_aco": "CMS asked: how should patients be attributed to specialists and ACOs — who counts as your doctor?",
+    "quality_data_infrastructure": "CMS asked: what should Medicare measure, and how should quality data flow?",
+}
+RFI_WHY_WH = {
+    "cpt_coding_valuation": "This is where gynecologic undervaluation gets fixed: decades of research show female-coded procedures priced ~30% below male-coded equivalents. Evidence standards set here decide whether that record can move CMS.",
+    "primary_care_redesign": "Menopause, midlife and preventive women's care are longitudinal, team-based medicine — exactly what visit-by-visit payment fails. Whatever model CMS builds here is the future home of that care.",
+    "awv_well_woman": "The opening to build a real well-woman visit into Medicare — screening, menopause, bone and heart health in one covered visit. Almost nobody is answering this question.",
+    "specialty_attribution_aco": "For many women, the OB/GYN is the principal doctor. Attribution rules decide whether Medicare's payment models recognize that or route women's care through someone else.",
+    "quality_data_infrastructure": "What isn't measured is invisible. No women's-health measures in MVPs means no accountability for menopause care, maternal outcomes, or screening rates.",
+}
+
+# --- normalize freeform ask-themes into canonical clusters for the RFI map
+import re as _re
+_THEME_RULES = [
+    (r"modifier.?25|same.?day|e/m cut|em cut|50% (payment )?(cut|reduction)", "Stop the same-day (Mod-25) cut"),
+    (r"maternit|g.?code|obstetric cod|ob cod|unbundl", "Adopt the new maternity codes"),
+    (r"dose|allerg|immunotherapy|95165|mue", "Fix the allergy-dose definition"),
+    (r"ruc\b|ruc process|deference", "Reform how codes get valued (RUC)"),
+    (r"empiric|evidence|real.?world|time data", "Require real evidence in valuation"),
+    (r"practice expense|\bpe\b|mei\b|indirect", "Update practice-expense inputs"),
+    (r"rvu|valuation increase|preserve|arthroplasty|joint|undervalu|work value|revalu", "Protect / raise specific code values"),
+    (r"sex.?equity|gender|disparit", "Audit sex-based payment gaps"),
+    (r"primary care|team.?based|apcm|longitudinal", "Fund team-based primary care"),
+    (r"awv|wellness visit|well.?woman|clinician.?led", "Modernize the wellness visit"),
+    (r"speech|slp|pediatric", "Value pediatric speech therapy"),
+    (r"caregiver", "Support family caregivers"),
+    (r"\bai\b|artificial intelligence|algorithm", "Guardrails for AI in care"),
+    (r"attribut|aco\b", "Fix specialist attribution"),
+    (r"quality|measure|mvp|reporting", "Measure what matters, cut burden"),
+    (r"telehealth|virtual", "Keep telehealth flexible"),
+    (r"midwif|workforce|who can bill|billing pathway", "Open billing to the full workforce"),
+]
+def norm_theme(t):
+    tl = (t or "").lower()
+    for pat, lab in _THEME_RULES:
+        if _re.search(pat, tl): return lab
+    return "Other asks"
 
 def top(counter, n, plain=None, key_is_plain=False):
     out=[]
@@ -95,6 +141,11 @@ def main():
     rfi_total=Counter(); rfi_wh=Counter()
     wh=watch_rrm=watch_root=0; prio_counts=Counter(); out_rows=[]; stakes_list=[]
     camp_members=defaultdict(list); camp_stance=defaultdict(Counter); camp_wh=Counter(); camp_open=defaultdict(Counter)
+    # new: org roster / G-code verdict / RFI ask map / same-day cut
+    org_roster=defaultdict(lambda:{"n":0,"wh":0,"type":"unknown","ids":[],"stances":Counter()})
+    coalition_letters=[]; gcode_counts=Counter(); gcode_samples=[]
+    rfi_theme=defaultdict(Counter); rfi_ask_samples=defaultdict(list); rfi_wh_asks=Counter()
+    mod25_spec=Counter(); mod25_wh=0; mod25_total=0; mod25_camp=0
     def _open(txt):
         t=re.sub(r"\s+"," ",(txt or "")).strip()
         return (t[:72]+"…") if len(t)>72 else t
@@ -135,15 +186,46 @@ def main():
             stakes_list.append({"id":r["id"],"org":(r["organization"] or "").strip(),"specialty":spec,
                 "note":r["llm_stakes_note"].strip(),"quote":(r["llm_quote"] or "").strip(),
                 "provisions":[PROV_PLAIN.get(p,p) for p in jl(r["llm_provisions"])][:3],"url":REG_URL.format(r["id"])})
+        # --- new-dimension aggregation (columns may be absent on an old corpus)
+        oname=(r["org_name"] if "org_name" in rk else None)
+        otype=(r["org_type"] if "org_type" in rk else None) or "unknown"
+        cosign=jl(r["co_signers"]) if "co_signers" in rk else []
+        gst=(r["gcode_stance"] if "gcode_stance" in rk else None)
+        rasks=jd(r["rfi_asks"]) if "rfi_asks" in rk else {}
+        if oname:
+            key=oname.strip()
+            o=org_roster[key]; o["n"]+=1; o["type"]=otype; o["ids"].append(r["id"]); o["stances"][stance]+=1
+            if whx: o["wh"]+=1
+        if cosign:
+            coalition_letters.append({"id":r["id"],"org":oname or (r["organization"] or "").strip() or "(unnamed)",
+                "co":cosign,"url":REG_URL.format(r["id"]),"wh":whx})
+        if gst and gst not in ("other_gcode",):
+            gcode_counts[gst]+=1
+            note=(r["gcode_note"] or "").strip() if "gcode_note" in rk else ""
+            if note and len(gcode_samples)<24:
+                gcode_samples.append({"id":r["id"],"stance":gst,"note":note,"org":oname or "",
+                    "spec":spec,"url":REG_URL.format(r["id"])})
+        for rf,a in rasks.items():
+            if rf not in RFI_PLAIN or not isinstance(a,dict): continue
+            th=norm_theme(a.get("theme") or a.get("ask") or "")
+            rfi_theme[rf][th]+=1
+            if a.get("wh_angle"): rfi_wh_asks[rf]+=1
+            if a.get("ask") and len(rfi_ask_samples[rf])<40:
+                rfi_ask_samples[rf].append({"ask":a["ask"],"wh":bool(a.get("wh_angle")),"org":oname or "",
+                    "id":r["id"],"url":REG_URL.format(r["id"])})
+        if "modifier_25" in jl(r["llm_provisions"]):
+            mod25_total+=1; mod25_spec[spec]+=1
+            if whx: mod25_wh+=1
+            if is_form: mod25_camp+=1
         snippet=re.sub(r"\s+"," ",(r["comment_text"] or "")).strip()[:280]
-        out_rows.append({"id":r["id"],"title":(r["title"] or "").strip(),"org":(r["organization"] or "").strip(),
+        out_rows.append({"id":r["id"],"title":(r["title"] or "").strip(),"org":(oname or r["organization"] or "").strip(),
             "type":st,"category":r["category"] or "","themes":[THEME_META[t]["label"] for t in themes if t in THEME_META],
             "kw":kws,"wh":bool(r["wh_flag"]),"whx":whx,"tier":tier,"specialty":spec,"stance":stance,
             "stance_target":(r["llm_stance_target"] or "").strip(),"quote":(r["llm_quote"] or "").strip(),
             "summary":(r["llm_summary"] or "").strip(),"has_attach":bool(r["llm_enriched"]),
             "rfi":jl(r["llm_rfi"]),"topics":jl(r["llm_topics"]),"framings":jl(r["llm_framings"]),"provisions":jl(r["llm_provisions"]),
             "priority":r["priority"] or "low","posted":d,"snippet":snippet,"url":REG_URL.format(r["id"],),
-            "form":is_form,"cluster":(clu if is_form else -1)})
+            "form":is_form,"cluster":(clu if is_form else -1),"gcode":gst or ""})
 
     themes_out=[{"key":k,"label":THEME_META[k]["label"],"plain":PLAIN.get(k,THEME_META[k]["label"]),
         "count":theme_counts.get(k,0),"wh":THEME_META[k]["wh"],"rfi":THEME_META[k]["rfi"],
@@ -164,6 +246,75 @@ def main():
     camp_submissions=sum(c["size"] for c in campaigns)
 
     attach_comments=db.execute("select count(distinct comment_id) from attachments where length(extracted_text)>50").fetchone()[0]
+
+    # --- watchlist scoreboard (societies may show absence; companies celebrate-only)
+    def _norm(s): return re.sub(r"[^a-z0-9& ]"," ",(s or "").lower()).strip()
+    all_filed_names=[]  # (normalized, original, id, via) for org filers and co-signers
+    for name,o in org_roster.items():
+        all_filed_names.append((_norm(name),name,o["ids"][0],"filed"))
+    for cl in coalition_letters:
+        for co in cl["co"]:
+            all_filed_names.append((_norm(co),co,cl["id"],"cosigner"))
+    def _match(entry):
+        """All candidate (comment_id, via) hits for one watchlist entry."""
+        hits=[]
+        for cand in [entry["name"]]+entry.get("aliases",[]):
+            cn=_norm(cand); acro=(len(cand)<=8 and cand.isupper()) if cand else False
+            for fn,orig,cid,via in all_filed_names:
+                if not fn: continue
+                ok=False
+                if acro: ok=bool(re.search(r"\b"+re.escape(cn)+r"\b",fn))
+                else:
+                    # containment only when BOTH strings are substantial (junk like 'Health' must not match)
+                    ok=(cn==fn) or (len(cn)>=9 and len(fn)>=9 and (cn in fn or fn in cn))
+                if ok: hits.append((cid,via,orig))
+        return hits
+    # Candidates must be VERIFIED before the public scoreboard shows "Filed".
+    # tag_extra.py verifies each (watch org, comment) pair by reading the letter
+    # opening; verdicts live in watch_hits. Unverified candidates stay "not yet".
+    db.execute("""CREATE TABLE IF NOT EXISTS watch_hits(
+        watch_name TEXT, comment_id TEXT, via TEXT, verified INTEGER,
+        PRIMARY KEY(watch_name, comment_id))""")
+    watch_out=[]
+    try:
+        WL=json.load(open(os.path.join(BASE,"watchlist.json")))
+        for g in WL["groups"]:
+            for o in g["orgs"]:
+                hits=_match(o)
+                for cid,via,orig in hits:
+                    db.execute("INSERT OR IGNORE INTO watch_hits(watch_name,comment_id,via,verified) VALUES(?,?,?,NULL)",
+                               (o["name"],cid,via))
+                ver=db.execute("SELECT comment_id,via FROM watch_hits WHERE watch_name=? AND verified=1 ORDER BY comment_id LIMIT 1",
+                               (o["name"],)).fetchone()
+                cid,via=(ver[0],ver[1]) if ver else (None,None)
+                watch_out.append({"name":o["name"],"short":o.get("short",o["name"]),"group":g["key"],
+                    "glabel":g["label"],"show_absent":g.get("show_absent",True),
+                    "filed":bool(cid),"via":via or "","id":cid or "","url":REG_URL.format(cid) if cid else ""})
+        db.commit()
+    except FileNotFoundError:
+        pass
+
+    # top women's-health organizational voices (extracted orgs with WH-relevant comments)
+    wh_voices=sorted(([{"name":n,"n":o["n"],"wh":o["wh"],"type":o["type"],"id":o["ids"][0],
+        "url":REG_URL.format(o["ids"][0]),"stance":(o["stances"].most_common(1)[0][0] if o["stances"] else "")}
+        for n,o in org_roster.items() if o["wh"]>0]),key=lambda x:(-x["wh"],-x["n"]))[:14]
+    filed_companies=[w for w in watch_out if w["group"]=="wh_company" and w["filed"]]
+
+    # RFI opportunity map v2
+    rfi_map=[]
+    for k in ["primary_care_redesign","specialty_attribution_aco","awv_well_woman","quality_data_infrastructure","cpt_coding_valuation"]:
+        samples=rfi_ask_samples.get(k,[])
+        samples.sort(key=lambda a:(not a["wh"],not bool(a["org"])))
+        rfi_map.append({"key":k,"label":RFI_PLAIN.get(k,k),"tech":RFI_TECH.get(k,""),
+            "asked":RFI_ASKED.get(k,""),"why_wh":RFI_WHY_WH.get(k,""),
+            "total":rfi_total.get(k,0),"wh":rfi_wh.get(k,0),"wh_asks":rfi_wh_asks.get(k,0),
+            "themes":[{"t":t,"n":n} for t,n in rfi_theme.get(k,Counter()).most_common(6)],
+            "asks":samples[:5]})
+
+    gcode_block={"counts":{s:gcode_counts.get(s,0) for s in ("adopt_cpt","keep_gcodes","mixed","unclear")},
+        "samples":gcode_samples[:10]}
+    mod25_block={"total":mod25_total,"wh":mod25_wh,"camp":mod25_camp,
+        "by_spec":[{"label":s,"count":n} for s,n in mod25_spec.most_common(10)]}
 
     data={
         "meta":{"total":total,"wh_flagged":wh,"rrm":watch_rrm,"root_cause":watch_root,
@@ -189,6 +340,13 @@ def main():
             "stakes":stakes_list,
         },
         "rfi_gap":rfi_gap,
+        "rfi_map":rfi_map,
+        "watchlist":watch_out,
+        "wh_voices":wh_voices,
+        "filed_companies":filed_companies,
+        "coalitions":sorted(coalition_letters,key=lambda c:-len(c["co"]))[:10],
+        "gcode":gcode_block,
+        "mod25":mod25_block,
         "campaigns":campaigns[:12],
         "framings":top(frame_counts,12,FRAME_PLAIN),
         "themes":themes_out,
