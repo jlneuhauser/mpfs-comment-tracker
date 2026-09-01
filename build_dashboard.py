@@ -222,7 +222,7 @@ footer .wordmark{margin-bottom:12px}footer .fnote{font-size:13px;color:#9fb8b3;m
 <header class="hero"><div class="inner">
   <p class="eyebrow">Live comment tracker &middot; Docket CMS-2026-2377 &middot; Updated daily</p>
   <h1>Getting women's health <span class="accent">on the record.</span></h1>
-  <p class="lede">Public comments shape Medicare's 2027 physician-payment rule &mdash; and what Medicare pays for shapes care far beyond Medicare. We read every comment as it lands (<b id="heroCount"></b> so far, letters and attachments in full) and track whether women's health is being heard.</p>
+  <p class="lede">Public comment shapes Medicare's 2027 physician-payment rule &mdash; which will be felt well beyond Medicare. We're reading every comment as it lands (<b id="heroCount"></b> so far, letters and attachments in full) and tracking whether women's health is being heard.</p>
   <div class="cta-row">
     <a class="btn btn-pink" href="https://medicarefeeschedule.51and.com/file" target="_blank" rel="noopener">File a comment &rarr;</a>
     <a class="btn btn-ghost" href="https://medicarefeeschedule.51and.com/" target="_blank" rel="noopener">Read 51&amp;'s full analysis &darr;</a></div>

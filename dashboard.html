@@ -208,7 +208,7 @@ footer .wordmark{margin-bottom:12px}footer .fnote{font-size:13px;color:#9fb8b3;m
 <header class="hero"><div class="inner">
   <p class="eyebrow">Live comment tracker &middot; Docket CMS-2026-2377 &middot; Updated daily</p>
   <h1>Getting women's health <span class="accent">on the record.</span></h1>
-  <p class="lede">Public comments shape Medicare's 2027 physician-payment rule &mdash; and what Medicare pays for shapes care far beyond Medicare. We read every comment as it lands (<b id="heroCount"></b> so far, letters and attachments in full) and track whether women's health is being heard.</p>
+  <p class="lede">Public comment shapes Medicare's 2027 physician-payment rule &mdash; which will be felt well beyond Medicare. We're reading every comment as it lands (<b id="heroCount"></b> so far, letters and attachments in full) and tracking whether women's health is being heard.</p>
   <div class="cta-row">
     <a class="btn btn-pink" href="https://medicarefeeschedule.51and.com/file" target="_blank" rel="noopener">File a comment &rarr;</a>
     <a class="btn btn-ghost" href="https://medicarefeeschedule.51and.com/" target="_blank" rel="noopener">Read 51&amp;'s full analysis &darr;</a></div>
@@ -516,5 +516,5 @@ $("#sgBtn").onclick=()=>{const t=$("#sgTopic").value.trim();if(!t){$("#sgMsg").t
  const body="Suggested topic to track: "+t+"\n\nWhy it matters: "+($("#sgWhy").value.trim()||"(none given)")+"\n\nFrom: "+($("#sgEmail").value.trim()||"(anonymous)")+"\n\n— Submitted from the CY2027 MPFS Comment Tracker";
  window.location.href="mailto:jodi@inwomenshealth.com?subject="+encodeURIComponent("MPFS tracker — topic suggestion: "+t)+"&body="+encodeURIComponent(body);
  $("#sgMsg").innerHTML="Thanks — your email app should open with the suggestion ready to send to 51&amp;.";$("#sgTopic").value="";$("#sgWhy").value="";$("#sgEmail").value="";};
-$("#foot").innerHTML="Generated 2026-09-01 19:44 UTC &middot; classification by 51&amp;'s watch-list taxonomy + LLM tagging on full comment text (inline + attachments) &middot; "+fmt(rows.length)+" comments &middot; source: <a href='https://www.regulations.gov/docket/CMS-2026-2377' target='_blank' rel='noopener'>Regulations.gov docket "+M.docket+"</a>";
+$("#foot").innerHTML="Generated 2026-09-01 19:45 UTC &middot; classification by 51&amp;'s watch-list taxonomy + LLM tagging on full comment text (inline + attachments) &middot; "+fmt(rows.length)+" comments &middot; source: <a href='https://www.regulations.gov/docket/CMS-2026-2377' target='_blank' rel='noopener'>Regulations.gov docket "+M.docket+"</a>";
 </script></body></html>
