@@ -210,7 +210,7 @@ def main():
             th=norm_theme(a.get("theme") or a.get("ask") or "")
             rfi_theme[rf][th]+=1
             if a.get("wh_angle"): rfi_wh_asks[rf]+=1
-            if a.get("ask") and len(rfi_ask_samples[rf])<40:
+            if a.get("ask") and len(rfi_ask_samples[rf])<40 and a["ask"] not in {s["ask"] for s in rfi_ask_samples[rf]}:
                 rfi_ask_samples[rf].append({"ask":a["ask"],"wh":bool(a.get("wh_angle")),"org":oname or "",
                     "id":r["id"],"url":REG_URL.format(r["id"])})
         if "modifier_25" in jl(r["llm_provisions"]):
