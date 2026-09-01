@@ -470,6 +470,15 @@ def main():
         "plain_map":{THEME_META[k]["label"]:PLAIN.get(k,THEME_META[k]["label"]) for k in THEME_META},
         "rows":out_rows,
     }
+    # 51& voice rule: no em dashes anywhere on the site, including LLM-generated
+    # summaries/asks/quotes. Scrub every string in the export.
+    def _scrub(x):
+        if isinstance(x,str):
+            return x.replace(" — ",", ").replace("— ",", ").replace(" —",", ").replace("—",", ")
+        if isinstance(x,list): return [_scrub(v) for v in x]
+        if isinstance(x,dict): return {k:_scrub(v) for k,v in x.items()}
+        return x
+    data=_scrub(data)
     json.dump(data,open(os.path.join(BASE,"data.json"),"w"),separators=(",",":"))
     print(f"total={total} wh_relevant(LLM)={data['meta']['wh_relevant']} tiers={data['meta']['tier']}")
     print("stance:",dict(stance_counts))

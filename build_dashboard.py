@@ -14,11 +14,11 @@ FONT_SEMI=fb("68f026f80cae49183f869d82_UncutSans-Semibold.woff2")
 
 HTML=r"""<!DOCTYPE html><html lang="en" data-theme="light"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Getting Women's Health on the Record — CY2027 Medicare Comment Tracker | 51&amp;</title>
-<meta name="description" content="51& reads and tags every public comment on Medicare's proposed CY2027 Physician Fee Schedule — who showed up, what they said, and where women's health appears. Updated daily through September 14, 2026.">
+<title>Getting Women's Health on the Record: CY2027 Medicare Comment Tracker | 51&amp;</title>
+<meta name="description" content="51& reads and tags every public comment on Medicare's proposed CY2027 Physician Fee Schedule: who showed up, what they said, and where women's health appears. Updated daily through September 14, 2026.">
 <link rel="icon" href="https://cdn.prod.website-files.com/68f026f80cae49183f869cc9/68f026f80cae49183f869dad_asset-icon-asterix-pink.svg">
-<meta property="og:title" content="Getting women's health on the record — the CY2027 Medicare comment tracker">
-<meta property="og:description" content="51& reads and tags every public comment on Medicare's proposed 2027 payment rule — who's commenting, what they say, and where women's health shows up. Updated daily through September 14.">
+<meta property="og:title" content="Getting women's health on the record: the CY2027 Medicare comment tracker">
+<meta property="og:description" content="51& reads and tags every public comment on Medicare's proposed 2027 payment rule: who's commenting, what they say, and where women's health shows up. Updated daily through September 14.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="51&">
 <meta property="og:url" content="https://tracker.51and.com/">
@@ -27,8 +27,8 @@ HTML=r"""<!DOCTYPE html><html lang="en" data-theme="light"><head>
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Medicare is deciding how women's health gets paid for in 2027. You have until Sept 14 to shape it.">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Getting women's health on the record — the CY2027 Medicare comment tracker">
-<meta name="twitter:description" content="Every public comment on Medicare's proposed 2027 rule, read and tagged daily — through a women's-health lens.">
+<meta name="twitter:title" content="Getting women's health on the record: the CY2027 Medicare comment tracker">
+<meta name="twitter:description" content="Every public comment on Medicare's proposed 2027 rule, read and tagged daily, through a women's-health lens.">
 <meta name="twitter:image" content="https://medicarefeeschedule.51and.com/og-comments.png">
 <style>
 @font-face{font-family:UncutSans;font-weight:400;font-display:swap;src:url(data:font/woff2;base64,__FONT_REG__) format('woff2');}
@@ -222,14 +222,14 @@ footer .wordmark{margin-bottom:12px}footer .fnote{font-size:13px;color:#9fb8b3;m
 <header class="hero"><div class="inner">
   <p class="eyebrow">Live comment tracker &middot; Docket CMS-2026-2377 &middot; Updated daily</p>
   <h1>Getting women's health <span class="accent">on the record.</span></h1>
-  <p class="lede">Public comment shapes Medicare's 2027 physician-payment rule &mdash; which will be felt well beyond Medicare. We're reading every comment as it lands (<b id="heroCount"></b> so far, letters and attachments in full) and tracking whether women's health is being heard.</p>
+  <p class="lede">Public comment shapes Medicare's 2027 physician-payment rule, which will be felt well beyond Medicare. We're reading every comment as it lands (<b id="heroCount"></b> so far, letters and attachments in full) and tracking whether women's health is being heard.</p>
   <div class="cta-row">
     <a class="btn btn-pink" href="https://medicarefeeschedule.51and.com/file" target="_blank" rel="noopener">File a comment &rarr;</a>
     <a class="btn btn-ghost" href="https://medicarefeeschedule.51and.com/" target="_blank" rel="noopener">Read 51&amp;'s full analysis &darr;</a></div>
 </div></header>
 <div class="kpiband"><div class="inner"><div class="kpis" id="kpis"></div></div></div>
 <main class="inner">
-  <div class="method"><p><b>How to read this.</b> A census of every comment on docket CMS-2026-2377 &mdash; who showed up, not a poll. Full text read, including <span id="attachN"></span> attached letters. Tags are descriptive, not political. Updated daily.</p></div>
+  <div class="method"><p><b>How to read this.</b> A census of every comment on docket CMS-2026-2377: who showed up, not a poll. Full text read, including <span id="attachN"></span> attached letters. Tags are descriptive, not political. Updated daily.</p></div>
 
   <div class="layer"><div class="tag">The 51&amp; scorecard</div>
     <h2>Is women's health getting on the record?</h2></div>
@@ -254,19 +254,19 @@ footer .wordmark{margin-bottom:12px}footer .fnote{font-size:13px;color:#9fb8b3;m
     </div></section>
 
   <section id="whoSpeaks"><div class="sec-head"><p class="eyebrow">Who's speaking up</p><h2 class="sec-h">Organizations on the record</h2>
-    <p class="hint">Filers identified from each letter's letterhead and signature. Most societies file in the final days &mdash; this board updates daily.</p></div>
+    <p class="hint">Filers identified from each letter's letterhead and signature. Most societies file in the final days. This board updates daily.</p></div>
     <div class="panel" id="watchPanel"></div></section>
 
-  <section id="mod25"><div class="sec-head"><p class="eyebrow">The same-day cut</p><h2 class="sec-h">The docket's biggest fight &mdash; told almost entirely without women</h2>
-    <p class="hint">CMS proposes paying half for an exam billed the same day as a procedure &mdash; including the well-woman visit that becomes a biopsy, an IUD insertion, or a colposcopy. Who's commenting on it:</p></div>
+  <section id="mod25"><div class="sec-head"><p class="eyebrow">The same-day cut</p><h2 class="sec-h">The biggest fight in the comments, told almost entirely without women</h2>
+    <p class="hint">CMS proposes paying half for an exam billed the same day as a procedure, including the well-woman visit that becomes a biopsy, an IUD insertion, or a colposcopy. Who's commenting on it:</p></div>
     <div class="panel"><div class="verdict" id="m25Lead"></div><div class="bars" id="m25Bars"></div></div></section>
 
   <section><div class="sec-head"><p class="eyebrow">The opportunity map</p><h2 class="sec-h">The five RFIs: what's on the record, what's missing</h2>
-    <p class="hint">An RFI (&ldquo;request for information&rdquo;) is CMS thinking out loud: no policy is proposed yet, and the answers shape what lands in future rules. CMS includes a few in every fee-schedule proposal &mdash; this year's five are below. What CMS asked, what commenters are saying, and what women's health should bring. Click a question to open it.</p></div>
+    <p class="hint">An RFI (&ldquo;request for information&rdquo;) is CMS thinking out loud: no policy is proposed yet, and the answers shape what lands in future rules. CMS includes a few in every fee-schedule proposal. This year's five are below. What CMS asked, what commenters are saying, and what women's health should bring. Click a question to open it.</p></div>
     <div id="rfiWrap"></div></section>
 
   <section><div class="sec-head"><p class="eyebrow">The hidden stakes</p><h2 class="sec-h">General fights with a women's-health consequence</h2>
-    <p class="hint">These comments never mention women's health as their topic &mdash; but each carries a specific, nameable consequence for women's care. This is the connective tissue most readers miss.</p></div>
+    <p class="hint">These comments never mention women's health as their topic, but each carries a specific, nameable consequence for women's care. This is the connective tissue most readers miss.</p></div>
     <div class="panel"><div class="stakes" id="stakesGrid"></div><button class="more" id="stakesMore" style="display:none">Show all <span id="stakesN"></span> &darr;</button></div></section>
 
   <section><div class="sec-head"><p class="eyebrow">Directly about women's health</p><h2 class="sec-h">What the core comments cover</h2><p class="hint">Click any bar to filter the browser below.</p></div>
@@ -288,7 +288,7 @@ footer .wordmark{margin-bottom:12px}footer .fnote{font-size:13px;color:#9fb8b3;m
       <div class="panel"><div class="bars" id="typeBars"></div></div></section>
   </div>
 
-  <section id="campaigns"><div class="sec-head"><p class="eyebrow">How organic is the docket</p><h2 class="sec-h">Original comments vs. organized campaigns</h2><p class="hint">Many comments are near-identical templates from an organized campaign &mdash; sometimes with a single sentence changed. We group them by text similarity, applied evenly to every campaign and every viewpoint. Agencies weigh unique, substantive comments differently from mass submissions, so this separates the two. Click any campaign to read it.</p></div>
+  <section id="campaigns"><div class="sec-head"><p class="eyebrow">How organic is the docket</p><h2 class="sec-h">Original comments vs. organized campaigns</h2><p class="hint">Many comments are near-identical templates from an organized campaign, sometimes with a single sentence changed. We group them by text similarity, applied evenly to every campaign and every viewpoint. Agencies weigh unique, substantive comments differently from mass submissions, so this separates the two. Click any campaign to read it.</p></div>
     <div class="panel">
       <div class="camplead"><div class="cell"><div class="big" id="origBig"></div><div class="sub">original / individual comments</div></div><div class="cell"><div class="big mag" id="campBig"></div><div class="sub" id="campSub">in organized template campaigns</div></div></div>
       <div class="camp-split"><div class="stack" id="campStack"></div><div class="stackleg" id="campLeg"></div></div>
@@ -303,13 +303,13 @@ footer .wordmark{margin-bottom:12px}footer .fnote{font-size:13px;color:#9fb8b3;m
     <div class="panel"><div id="timeline"></div></div></section>
 
   <section><div class="sec-head"><p class="eyebrow">Help shape the tracker</p><h2 class="sec-h">Suggest a topic to track</h2>
-    <p class="hint">See something we're missing &mdash; from any point of view? Tell us and we'll consider adding it to the watch-list.</p></div>
+    <p class="hint">See something we're missing, from any point of view? Tell us and we'll consider adding it to the watch-list.</p></div>
     <div class="panel"><div class="suggest">
       <input id="sgTopic" placeholder="Topic or keyword (e.g. pelvic floor therapy)"><input id="sgWhy" placeholder="Why it matters (optional)">
       <input id="sgEmail" type="email" placeholder="Your email (optional)"><button class="btn btn-pink" id="sgBtn" style="padding:11px 22px;font-size:14px">Send suggestion &rarr;</button></div>
       <div id="sgMsg" class="hint" style="margin:12px 0 0"></div></div></section>
 
-  <section><div class="sec-head"><p class="eyebrow">Framings across the debate</p><h2 class="sec-h">How commenters argue &mdash; every side</h2>
+  <section><div class="sec-head"><p class="eyebrow">Framings across the debate</p><h2 class="sec-h">How commenters argue, from every side</h2>
     <p class="hint">Descriptive lenses applied evenly to every comment, never labeled political. Restorative/root-cause (the RRM/MAHA framing) sits here as one row among many. Click any bar to filter.</p></div>
     <div class="panel"><div class="bars" id="frameBars"></div></div></section>
 
@@ -319,7 +319,7 @@ footer .wordmark{margin-bottom:12px}footer .fnote{font-size:13px;color:#9fb8b3;m
       <input type="search" id="q" placeholder="Search title, organization, summary&hellip;">
       <select id="fSpec"><option value="">All specialties</option></select>
       <select id="fStance"><option value="">All stances</option><option value="oppose">Oppose</option><option value="support">Support</option><option value="mixed">Mixed</option><option value="neutral_informational">Neutral</option></select>
-      <select id="fTier"><option value="">All comments</option><option value="core">Women's health — core</option><option value="stakes">Women's health — stakes</option><option value="general">General</option></select>
+      <select id="fTier"><option value="">All comments</option><option value="core">Women's health · core</option><option value="stakes">Women's health · stakes</option><option value="general">General</option></select>
       <select id="fForm"><option value="">All comments</option><option value="orig">Original only</option><option value="camp">Campaigns only</option></select>
       <select id="fTheme"><option value="">All themes</option></select>
       <select id="fKw"><option value="">All keywords</option></select>
@@ -349,9 +349,9 @@ const GC=DATA.gcode||{counts:{},samples:[]};const gFor=GC.counts.adopt_cpt||0,gK
 const WLIST=DATA.watchlist||[];const socAll=WLIST.filter(w=>w.group==='wh_society'),socOn=socAll.filter(w=>w.filed);
 const M25=DATA.mod25||{total:0,wh:0,by_spec:[]};
 const kpis=[
- {v:fmt(M.total),l:"Comments read — every one, in full",x:(M.docket_total&&M.docket_total>M.total)?("of "+fmt(M.docket_total)+" filed so far — we're catching up as the surge lands"):("Docket "+M.docket+", updated daily"),f:{}},
+ {v:fmt(M.total),l:"Comments read: every one, in full",x:(M.docket_total&&M.docket_total>M.total)?("of "+fmt(M.docket_total)+" filed so far; catching up as the surge lands"):("Docket "+M.docket+", updated daily"),f:{}},
  {v:fmt(M.wh_relevant),l:"Women's-health–relevant comments",x:M.tier.core+" directly about it · "+M.tier.stakes+" hidden stakes",cls:"wh",f:{tier:"wh"}},
- {v:fmt(gFor)+"–"+fmt(gKeep),l:"New maternity codes vs. G-code snap-back",x:"the docket's verdict so far",cls:"wh",go:"#gcode"},
+ {v:fmt(gFor)+"–"+fmt(gKeep),l:"New maternity codes vs. G-code snap-back",x:"the verdict in the comments so far",cls:"wh",go:"#gcode"},
  {v:socOn.length+" of "+socAll.length,l:"Women's-health societies on the record",x:"major letters land near the deadline",cls:"crit",go:"#whoSpeaks"},
  {v:Math.round(oppose/M.total*100)+"%",l:"Oppose the rule",x:fmt(oppose)+" of "+fmt(M.total)+" comments read",f:{stance:"oppose"}},
  {v:days,l:"Days to deadline",x:"Comments due Sep 14, 2026"}];
@@ -373,7 +373,7 @@ function stack(el,leg,items,total,cmap,onClick){
 stack($("#stanceStack"),$("#stanceLeg"),D.stance,M.total,SCOL,k=>applyFilter({stance:k}));
 
 bars($("#specBars"),D.specialties.map(s=>({label:s.label,count:s.count})),{color:"var(--teal)",onClick:i=>applyFilter({spec:i.label})});
-bars($("#typeBars"),D.submitter_types.map(t=>({label:t.type,count:t.count})),{color:"var(--green)",onClick:i=>applyFilter({list:{field:'type',value:i.label,label:i.label+' — submitter type',scalar:true}})});
+bars($("#typeBars"),D.submitter_types.map(t=>({label:t.type,count:t.count})),{color:"var(--green)",onClick:i=>applyFilter({list:{field:'type',value:i.label,label:i.label+' · submitter type',scalar:true}})});
 bars($("#provBars"),D.provisions.map(p=>({label:p.label,count:p.count,key:p.key})),{color:"var(--magenta)",onClick:i=>applyFilter({list:{field:'provisions',value:i.key,label:i.label}})});
 // campaigns: original vs organized template submissions
 $("#origBig").textContent=fmt(M.original);$("#campBig").textContent=fmt(M.campaign_submissions);
@@ -385,11 +385,11 @@ $("#campList").querySelectorAll(".camprow").forEach(el=>el.onclick=()=>{const c=
 // tier
 const T=W.tier,rel=T.core+T.stakes;
 $("#tierBig").textContent=fmt(rel);
-$("#tierSub").innerHTML="of "+fmt(M.total)+" comments touch women's health &mdash; <b>"+T.core+"</b> directly, <b>"+T.stakes+"</b> through hidden stakes. The rest ("+fmt(T.general)+") are general payment policy.";
+$("#tierSub").innerHTML="of "+fmt(M.total)+" comments touch women's health: <b>"+T.core+"</b> directly, <b>"+T.stakes+"</b> through hidden stakes. The rest ("+fmt(T.general)+") are general payment policy.";
 const TCOL={core:"var(--teal)",stakes:"var(--gold)",general:"var(--other)"};
 stack($("#tierStack"),$("#tierLeg"),[{key:"core",label:"Directly about women's health",count:T.core},{key:"stakes",label:"General, with women's-health stakes",count:T.stakes},{key:"general",label:"General policy",count:T.general}],M.total,TCOL,k=>applyFilter({tier:k}));
 
-// push cards — where women's health needs more voices, computed from the data
+// push cards: where women's health needs more voices, computed from the data
 const socOff=socAll.filter(w=>!w.filed);
 const thinRfis=(DATA.rfi_map||[]).filter(r=>r.wh<=1);
 $("#pushGrid").innerHTML=[
@@ -400,7 +400,7 @@ $("#pushGrid").innerHTML=[
 
 // G-code verdict
 $("#gcodeVerdict").innerHTML=`
- <div class="clkv" data-g="adopt_cpt" style="cursor:pointer"><div class="vnum for">${fmt(gFor)}</div><div class="vlab">say adopt the new CPT maternity codes &mdash; a clean break</div></div>
+ <div class="clkv" data-g="adopt_cpt" style="cursor:pointer"><div class="vnum for">${fmt(gFor)}</div><div class="vlab">say adopt the new CPT maternity codes: a clean break</div></div>
  <div class="vs">vs</div>
  <div class="clkv" data-g="keep_gcodes" style="cursor:pointer"><div class="vnum against">${fmt(gKeep)}</div><div class="vlab">say keep the old bundle alive through G-codes</div></div>
  <div style="flex:1;min-width:230px"><div class="vlab" style="max-width:none;color:var(--muted)">${gMix?fmt(gMix)+" mixed (mostly: adopt the CPT codes, with a transition bridge)":""}${GC.counts.unclear?" &middot; "+fmt(GC.counts.unclear)+" unclear":""}</div></div>`;
@@ -413,13 +413,13 @@ $("#gcodeQuotes").innerHTML=(GC.samples||[]).filter(s=>s.note).slice(0,3).map(s=
 
 // who's-speaking-up board
 const chip=w=>w.filed
- ?`<a class="borg on" href="${w.url}" target="_blank" rel="noopener" title="${esc(w.name)} — read their letter"><span class="dot"></span>${esc(w.short)}${w.via==="cosigner"?" <span style='font-weight:400;color:var(--muted)'>(co-signer)</span>":""} &#10003;</a>`
- :`<span class="borg" title="${esc(w.name)} — no letter found in the docket yet"><span class="dot"></span>${esc(w.short)}</span>`;
+ ?`<a class="borg on" href="${w.url}" target="_blank" rel="noopener" title="${esc(w.name)}: read their letter"><span class="dot"></span>${esc(w.short)}${w.via==="cosigner"?" <span style='font-weight:400;color:var(--muted)'>(co-signer)</span>":""} &#10003;</a>`
+ :`<span class="borg" title="${esc(w.name)}: no letter found in the docket yet"><span class="dot"></span>${esc(w.short)}</span>`;
 const comps=DATA.filed_companies||[];
 const voices=(DATA.wh_voices||[]).filter(v=>v.wh>0);
 const coal=(DATA.coalitions||[]).filter(c=>(c.co||[]).length>=3);
 $("#watchPanel").innerHTML=
- `<div class="bhead">Women's-health societies &amp; advocacy &mdash; <span style="color:var(--teal)">${socOn.length} of ${socAll.length}</span> in the docket so far</div>`
+ `<div class="bhead">Women's-health societies &amp; advocacy · <span style="color:var(--teal)">${socOn.length} of ${socAll.length}</span> in the docket so far</div>`
  +`<div class="board">${WLIST.filter(w=>w.group==="wh_society").map(chip).join("")}</div>`
  +`<div class="bhead">Large health care associations</div>`
  +`<div class="board">${WLIST.filter(w=>w.group==="big_medicine").map(chip).join("")}</div>`
@@ -428,13 +428,13 @@ $("#watchPanel").innerHTML=
    :`<div class="bnote">No women's-health company letters in the docket yet.</div>`)
  +(voices.length?`<div class="bhead">Organizational voices for women's health so far</div><div class="voices">${voices.slice(0,8).map(v=>`<div class="vrow"><span class="nm">${esc(v.name)}</span><span class="ty">${esc((v.type||"").replace(/_/g," "))}</span><a href="${v.url}" target="_blank" rel="noopener">${v.wh>1?v.wh+" letters":"Read"} &rarr;</a></div>`).join("")}</div>`:"")
  +(coal.length?`<div class="bhead">Coalition letters (multiple organizations, one filing)</div><div class="voices">${coal.slice(0,5).map(c=>`<div class="vrow"><span class="nm">${esc(c.org)}</span><span class="ty">+ ${c.co.length} co-signers</span><a href="${c.url}" target="_blank" rel="noopener">Read &rarr;</a></div>`).join("")}</div>`:"")
- +`<div class="bnote">&ldquo;Not yet&rdquo; means no letter found in this docket &mdash; some groups engage CMS through other channels. Spot a letter we missed? <a href="mailto:jodi@inwomenshealth.com?subject=MPFS tracker — org letter">Tell us.</a></div>`;
+ +`<div class="bnote">&ldquo;Not yet&rdquo; means no letter found in this docket. Some groups engage CMS through other channels. Spot a letter we missed? <a href="mailto:jodi@inwomenshealth.com?subject=MPFS tracker: org letter">Tell us.</a></div>`;
 
-// same-day (modifier 25) cut — who tells the story
-$("#m25Lead").innerHTML=`<div><div class="vnum" style="color:var(--ink)">${fmt(M25.total)}</div><div class="vlab">comments fight the same-day cut &mdash; the docket's biggest battle${M25.camp?` (${fmt(M25.camp)} from organized campaigns)`:""}</div></div><div class="vs">but only</div><div><div class="vnum against">${fmt(M25.wh)}</div><div class="vlab">connect it to women's health</div></div>`;
+// same-day (modifier 25) cut: who tells the story
+$("#m25Lead").innerHTML=`<div><div class="vnum" style="color:var(--ink)">${fmt(M25.total)}</div><div class="vlab">comments fight the same-day cut, the biggest battle in the comments${M25.camp?` (${fmt(M25.camp)} from organized campaigns)`:""}</div></div><div class="vs">but only</div><div><div class="vnum against">${fmt(M25.wh)}</div><div class="vlab">connect it to women's health</div></div>`;
 const m25items=(M25.by_spec||[]).filter(s=>s.label!=="Other/Unclear").slice(0,8).map(s=>({label:s.label,count:s.count,neutral:true}));
 m25items.push({label:"Women's-health voices",count:M25.wh,neutral:false});
-bars($("#m25Bars"),m25items,{color:i=>i.neutral?"var(--other)":"var(--teal)",onClick:i=>i.neutral?applyFilter({spec:i.label,list:{field:"provisions",value:"modifier_25",label:"Same-day cut · "+i.label}}):applyFilter({tier:"wh",list:{field:"provisions",value:"modifier_25",label:"Same-day cut — women's-health voices"}})});
+bars($("#m25Bars"),m25items,{color:i=>i.neutral?"var(--other)":"var(--teal)",onClick:i=>i.neutral?applyFilter({spec:i.label,list:{field:"provisions",value:"modifier_25",label:"Same-day cut · "+i.label}}):applyFilter({tier:"wh",list:{field:"provisions",value:"modifier_25",label:"Same-day cut · women's-health voices"}})});
 
 // stakes cards
 const STK=W.stakes;let stakesShown=4;
@@ -446,7 +446,7 @@ bars($("#topicBars"),W.topics.map(t=>({label:t.label,count:t.count,key:t.key})),
 $("#kwrap").innerHTML=(DATA.keywords||[]).map((k,x)=>`<span class="kw" data-x="${x}">${esc(k.label)} <b>${k.count}</b></span>`).join("");
 $("#kwrap").querySelectorAll(".kw").forEach(el=>el.onclick=()=>applyFilter({kw:DATA.keywords[+el.dataset.x].label}));
 
-// RFI opportunity map v2 — expandable cards with what CMS asked + the asks on record
+// RFI opportunity map v2: expandable cards with what CMS asked + the asks on record
 const RM=DATA.rfi_map||[];
 const rmx=Math.max(...RM.map(r=>r.total),1);
 $("#rfiWrap").innerHTML=RM.map((r,x)=>{
@@ -460,13 +460,13 @@ $("#rfiWrap").innerHTML=RM.map((r,x)=>{
    <div class="rval"><b>${r.wh}</b> WH / ${r.total}</div><span class="digbtn"><span>Dig in deeper</span> <span class="caret">&#9656;</span></span></div></summary>
   <div class="body">
    <div class="asked">${esc(r.asked)}</div>
-   ${(r.decoder||[]).length?`<div class="decoder">${r.decoder.map(d=>`<div class="dt"><b>${esc(d.t)}</b> &mdash; ${esc(d.d)}.</div>`).join("")}</div>`:""}
+   ${(r.decoder||[]).length?`<div class="decoder">${r.decoder.map(d=>`<div class="dt"><b>${esc(d.t)}</b>: ${esc(d.d)}.</div>`).join("")}</div>`:""}
    <div class="whywh"><b style="color:var(--teal)">Why it matters for women's health:</b> ${esc(r.why_wh)}</div>
    ${(r.consider||[]).length?`<div class="bhead">For women's health to consider</div><ul class="consider">${r.consider.map(c=>`<li>${esc(c)}</li>`).join("")}</ul>`:""}
-   <div class="bhead">${fmt(r.total)} comments &mdash; ${fmt(r.total-(r.form||0))} original · ${fmt(r.form||0)} from template campaigns${r.wh?` &middot; <span style="color:var(--teal)">${fmt(r.wh)} women's-health</span> (${fmt(r.wh-(r.wh_form||0))} original)`:""}</div>
+   <div class="bhead">${fmt(r.total)} comments · ${fmt(r.total-(r.form||0))} original · ${fmt(r.form||0)} from template campaigns${r.wh?` &middot; <span style="color:var(--teal)">${fmt(r.wh)} women's-health</span> (${fmt(r.wh-(r.wh_form||0))} original)`:""}</div>
    ${r.questions?r.questions.map(qq=>`<div class="asked" style="margin-top:12px">${esc(qq.label)} <span style="color:var(--muted);font-weight:400">&middot; ${qq.n} answer${qq.n===1?"":"s"}${qq.wh?` &middot; <span style='color:var(--teal)'>${qq.wh} women's-health</span>`:""}</span></div>
      <ul class="asklist" style="margin-top:2px">${qq.samples.map(s=>`<li>&ldquo;${esc(s.text)}&rdquo;${s.wh?'<span class="wtag">women\'s health</span>':''} &nbsp;<a href="${s.url}" target="_blank" rel="noopener">Read &rarr;</a></li>`).join("")}</ul>`).join(""):""}
-   ${r.spillover?`<div class="bnote" style="margin-top:12px">${fmt(r.spillover)} more comments were filed near this RFI but address specific rule provisions (the same-day cut, the maternity codes, individual code values) &mdash; they're counted in those sections instead.</div>`:""}
+   ${r.spillover?`<div class="bnote" style="margin-top:12px">${fmt(r.spillover)} more comments were filed near this RFI but address specific rule provisions (the same-day cut, the maternity codes, individual code values). They're counted in those sections instead.</div>`:""}
    ${!r.questions&&themes.length?`<div class="rfth">${themes.map(t=>`<span class="chip">${esc(t.t)} <b>${t.n}</b></span>`).join("")}</div>`:""}
    ${!r.questions&&asks.length?`<div class="bhead">From the record</div><ul class="asklist">${asks.map(a=>`<li>&ldquo;${esc(a.ask)}&rdquo;${a.wh?'<span class="wtag">women\'s health</span>':''} &nbsp;<a href="${a.url}" target="_blank" rel="noopener">Read &rarr;</a></li>`).join("")}</ul>`:""}
    ${hot?`<div class="bnote" style="border-left:3px solid var(--magenta);padding-left:10px">Almost no women's-health comments on this question yet.</div>`:""}
@@ -476,7 +476,7 @@ $("#rfiWrap").innerHTML=RM.map((r,x)=>{
    </div></div></details>`;}).join("")
  +`<div class="stackleg" style="margin-top:14px"><span><i style="background:var(--teal)"></i>Women's-health&ndash;relevant</span><span><i style="background:var(--other)"></i>All comments on that RFI</span> &middot; <span style="color:var(--muted)">bar lengths are comparable across the five questions</span></div>`;
 document.querySelectorAll("#rfiWrap .rfiall").forEach(b=>b.onclick=e=>{e.preventDefault();const r=RM[+b.dataset.x];
- applyFilter({list:r.questions?{field:'cptq',value:true,label:r.label+" — RFI answers",scalar:true}:{field:'rfi',value:r.key,label:r.label}});});
+ applyFilter({list:r.questions?{field:'cptq',value:true,label:r.label+" · RFI answers",scalar:true}:{field:'rfi',value:r.key,label:r.label}});});
 
 bars($("#frameBars"),DATA.framings.map(f=>({label:f.label,count:f.count,key:f.key})),{color:"var(--teal)",onClick:i=>applyFilter({list:{field:'framings',value:i.key,label:i.label}})});
 
@@ -513,7 +513,7 @@ function render(){let f=rows.filter(passes);f.sort((a,b)=>{let av=a[sortK]||"",b
  $("#rowCount").textContent=fmt(f.length)+" of "+fmt(rows.length)+" comments";
  $("#activeFilter").innerHTML=listFilter?'<span class="activef">&#9656; '+esc(listFilter.label)+' &#10005;</span>':"";
  if(listFilter&&$("#activeFilter").firstChild)$("#activeFilter").firstChild.onclick=()=>applyFilter({});
- $("#tbody").innerHTML=f.slice(0,shown).map(r=>`<tr><td class="date">${r.posted||"&mdash;"}</td>
+ $("#tbody").innerHTML=f.slice(0,shown).map(r=>`<tr><td class="date">${r.posted||"&ndash;"}</td>
   <td><a href="${r.url}" target="_blank" rel="noopener">${esc(r.title||"(untitled comment)")}</a>${r.org?`<div class="tt-org">${esc(r.org)}</div>`:""}${r.summary?`<div class="summ">${esc(r.summary)}</div>`:""}
    <div class="chips">${r.tier==='core'?'<span class="chip core">women\'s health</span>':r.tier==='stakes'?'<span class="chip stakes">WH stakes</span>':''}${r.has_attach?'<span class="chip att">attachment read</span>':''}${r.themes.slice(0,3).map(t=>`<span class="chip" title="${esc(t)}">${esc(PLAIN[t]||t)}</span>`).join("")}</div></td>
   <td class="tt-org">${esc(r.specialty)}</td><td><span class="pill ${r.stance}">${r.stance==='neutral_informational'?'neutral':r.stance}</span></td></tr>`).join("")||`<tr><td colspan="4" style="color:var(--muted);padding:26px;text-align:center">No comments match these filters.</td></tr>`;
@@ -527,9 +527,9 @@ $("#moreBtn").onclick=()=>{shown+=100;render();};
 document.querySelectorAll("th[data-k]").forEach(th=>th.onclick=()=>{const k=th.dataset.k;sortDir=(sortK===k)?-sortDir:(k==="posted"?-1:1);sortK=k;render();});
 render();
 $("#sgBtn").onclick=()=>{const t=$("#sgTopic").value.trim();if(!t){$("#sgMsg").textContent="Please enter a topic first.";return;}
- const body="Suggested topic to track: "+t+"\n\nWhy it matters: "+($("#sgWhy").value.trim()||"(none given)")+"\n\nFrom: "+($("#sgEmail").value.trim()||"(anonymous)")+"\n\n— Submitted from the CY2027 MPFS Comment Tracker";
- window.location.href="mailto:jodi@inwomenshealth.com?subject="+encodeURIComponent("MPFS tracker — topic suggestion: "+t)+"&body="+encodeURIComponent(body);
- $("#sgMsg").innerHTML="Thanks — your email app should open with the suggestion ready to send to 51&amp;.";$("#sgTopic").value="";$("#sgWhy").value="";$("#sgEmail").value="";};
+ const body="Suggested topic to track: "+t+"\n\nWhy it matters: "+($("#sgWhy").value.trim()||"(none given)")+"\n\nFrom: "+($("#sgEmail").value.trim()||"(anonymous)")+"\n\n- Submitted from the CY2027 MPFS Comment Tracker";
+ window.location.href="mailto:jodi@inwomenshealth.com?subject="+encodeURIComponent("MPFS tracker: topic suggestion: "+t)+"&body="+encodeURIComponent(body);
+ $("#sgMsg").innerHTML="Thanks! Your email app should open with the suggestion ready to send to 51&amp;.";$("#sgTopic").value="";$("#sgWhy").value="";$("#sgEmail").value="";};
 $("#foot").innerHTML="Generated __GEN__ &middot; classification by 51&amp;'s watch-list taxonomy + LLM tagging on full comment text (inline + attachments) &middot; "+fmt(rows.length)+" comments &middot; source: <a href='https://www.regulations.gov/docket/CMS-2026-2377' target='_blank' rel='noopener'>Regulations.gov docket "+M.docket+"</a>";
 </script></body></html>"""
 out=(HTML.replace("/*__DATA__*/",json.dumps(DATA,separators=(",",":"))).replace("__FONT_REG__",FONT_REG).replace("__FONT_SEMI__",FONT_SEMI).replace("__GEN__",GEN))
