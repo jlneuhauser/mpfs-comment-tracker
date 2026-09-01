@@ -38,6 +38,26 @@ REPO = "jlneuhauser/mpfs-comment-tracker"
 ORGPAT = re.compile(r"(?i)\b(on behalf of|undersigned|we represent|our member|association|society of|college of|academy of|coalition|alliance|institute|federation|chamber of|medical center|health system|hospital|university|,\s*(inc|llc|corp)\b)")
 
 
+class RateLimited(Exception):
+    """Hourly quota hit. Raised instead of sleeping 20+ minutes (M.api_get's
+    behavior) so a bounded foreground run snapshots and exits cleanly; the next
+    hourly wake-up continues with a fresh window."""
+
+def api_once(url, params=None):
+    params = dict(params or {}); params["api_key"] = M.KEY
+    err = 0
+    while True:
+        r = M.session.get(url, params=params, timeout=60)
+        if r.status_code == 429:
+            raise RateLimited()
+        if r.status_code >= 500:
+            err += 1
+            if err >= 5: raise RuntimeError(f"5xx after retries: {url}")
+            time.sleep(2 ** err); continue
+        r.raise_for_status()
+        return r.json()
+
+
 def fmt_eastern(ts):
     """regs.gov date filters need 'yyyy-MM-dd HH:mm:ss' EASTERN (no overlap here;
     windows dedupe by id)."""
@@ -192,7 +212,10 @@ def phase_detail(db, tok, deadline, snap_every):
         if deadline and time.monotonic() > deadline:
             print("  detail: budget reached — resumes next run"); return False
         try:
-            detail = M.api_get(f"{API}/comments/{cid}", {"include": "attachments"})
+            detail = api_once(f"{API}/comments/{cid}", {"include": "attachments"})
+        except RateLimited:
+            print(f"  detail: hourly quota hit at {i}/{len(todo)} — stopping this run; next wake continues")
+            db.commit(); return False
         except Exception as e:
             print(f"  {cid}: {type(e).__name__} — skipping this run"); continue
         d = detail["data"]; a = d["attributes"]
@@ -226,7 +249,7 @@ def phase_detail(db, tok, deadline, snap_every):
             db.commit(); print(f"  ...{i+1}/{len(todo)} details fetched", flush=True)
         if snap_every and time.monotonic() - last_snap > snap_every * 60:
             db.commit(); snapshot(tok); last_snap = time.monotonic()
-        time.sleep(0.15)
+        time.sleep(0.05)
     db.commit()
     print("phase 2 complete")
     return True
