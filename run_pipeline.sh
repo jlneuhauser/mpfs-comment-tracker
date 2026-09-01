@@ -25,6 +25,9 @@ hard_stop() {  # hard_stop <minutes> <cmd...>
   fi
 }
 
+echo "== 0. restore corpus (lives on the corpus-latest GitHub Release, not in git) =="
+python3 corpus_store.py fetch
+
 echo "== 1. fetch new/updated comments (budget: ${ING_MIN}m) =="
 hard_stop "${ING_MIN:+$((${ING_MIN%.*}+20))}" python3 mpfs_ingest.py --mode daily ${ING_MIN:+--max-minutes "$ING_MIN"}
 
@@ -33,6 +36,9 @@ hard_stop "${PDF_MIN:+$((${PDF_MIN%.*}+10))}" python3 pdf_ingest.py ${PDF_MIN:+-
 
 echo "== 3. keyword re-classification =="
 python3 reclassify.py
+
+echo "== 3b. restore any tags Supabase already has (saves tagging budget) =="
+python3 restore_tags.py || echo "!! restore_tags failed — tag_llm will cover the gap"
 
 echo "== 4. LLM-tag any newly ingested comments (budget: ${TAG_MIN}m) =="
 hard_stop "${TAG_MIN:+$((${TAG_MIN%.*}+15))}" python3 tag_llm.py ${TAG_MIN:+--max-minutes "$TAG_MIN"}
@@ -46,6 +52,9 @@ python3 build_dashboard.py
 
 echo "== 6. mirror into Supabase Postgres =="
 python3 supabase_sync.py
+
+echo "== 6b. upload corpus snapshot to the corpus-latest release =="
+python3 corpus_store.py store || echo "!! corpus upload FAILED — this run's ingest/tag work will be redone next run"
 
 echo "== 7. stage the public site =="
 mkdir -p public

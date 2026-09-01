@@ -5,3 +5,6 @@ __pycache__/
 public/
 *.png
 *.zip
+corpus.db
+corpus.db.gz
+public/
