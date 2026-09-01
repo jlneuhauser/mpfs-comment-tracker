@@ -451,15 +451,19 @@ $("#rfiWrap").innerHTML=RM.map((r,x)=>{
    <div class="asked">${esc(r.asked)}</div>
    <div class="whywh"><b style="color:var(--teal)">Why it matters for women's health:</b> ${esc(r.why_wh)}</div>
    <div class="bhead">${fmt(r.total)} comments &mdash; ${fmt(r.total-(r.form||0))} original · ${fmt(r.form||0)} from template campaigns${r.wh?` &middot; <span style="color:var(--teal)">${fmt(r.wh)} women's-health</span> (${fmt(r.wh-(r.wh_form||0))} original)`:""}</div>
-   ${themes.length?`<div class="rfth">${themes.map(t=>`<span class="chip">${esc(t.t)} <b>${t.n}</b></span>`).join("")}</div>`:""}
-   ${asks.length?`<div class="bhead">From the record</div><ul class="asklist">${asks.map(a=>`<li>&ldquo;${esc(a.ask)}&rdquo;${a.org?` <b class="who">&mdash; ${esc(a.org)}</b>`:""}${a.wh?'<span class="wtag">women\'s health</span>':''} &nbsp;<a href="${a.url}" target="_blank" rel="noopener">Read &rarr;</a></li>`).join("")}</ul>`:""}
+   ${r.questions?r.questions.map(qq=>`<div class="asked" style="margin-top:12px">${esc(qq.label)} <span style="color:var(--muted);font-weight:400">&middot; ${qq.n} answer${qq.n===1?"":"s"}${qq.wh?` &middot; <span style='color:var(--teal)'>${qq.wh} women's-health</span>`:""}</span></div>
+     <ul class="asklist" style="margin-top:2px">${qq.samples.map(s=>`<li>&ldquo;${esc(s.text)}&rdquo;${s.org?` <b class="who">&mdash; ${esc(s.org)}</b>`:""}${s.wh?'<span class="wtag">women\'s health</span>':''} &nbsp;<a href="${s.url}" target="_blank" rel="noopener">Read &rarr;</a></li>`).join("")}</ul>`).join(""):""}
+   ${r.spillover?`<div class="bnote" style="margin-top:12px">${fmt(r.spillover)} more comments were filed near this RFI but address specific rule provisions (the same-day cut, the maternity codes, individual code values) &mdash; they're counted in those sections instead.</div>`:""}
+   ${!r.questions&&themes.length?`<div class="rfth">${themes.map(t=>`<span class="chip">${esc(t.t)} <b>${t.n}</b></span>`).join("")}</div>`:""}
+   ${!r.questions&&asks.length?`<div class="bhead">From the record</div><ul class="asklist">${asks.map(a=>`<li>&ldquo;${esc(a.ask)}&rdquo;${a.org?` <b class="who">&mdash; ${esc(a.org)}</b>`:""}${a.wh?'<span class="wtag">women\'s health</span>':''} &nbsp;<a href="${a.url}" target="_blank" rel="noopener">Read &rarr;</a></li>`).join("")}</ul>`:""}
    ${hot?`<div class="bnote" style="border-left:3px solid var(--magenta);padding-left:10px">Almost no women's-health comments on this question yet.</div>`:""}
    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
-    <button class="activef rfiall" data-x="${x}">Read all ${fmt(r.total)} comments &rarr;</button>
+    <button class="activef rfiall" data-x="${x}">Read ${r.questions?"the "+fmt(r.total)+" answers":"all "+fmt(r.total)+" comments"} &rarr;</button>
     <a class="btn btn-pink" style="padding:8px 18px;font-size:13px" href="https://medicarefeeschedule.51and.com/file" target="_blank" rel="noopener">Answer this RFI &rarr;</a>
    </div></div></details>`;}).join("")
  +`<div class="stackleg" style="margin-top:14px"><span><i style="background:var(--teal)"></i>Women's-health&ndash;relevant</span><span><i style="background:var(--other)"></i>All comments on that RFI</span> &middot; <span style="color:var(--muted)">bar lengths are comparable across the five questions</span></div>`;
-document.querySelectorAll("#rfiWrap .rfiall").forEach(b=>b.onclick=e=>{e.preventDefault();const r=RM[+b.dataset.x];applyFilter({list:{field:'rfi',value:r.key,label:r.label}});});
+document.querySelectorAll("#rfiWrap .rfiall").forEach(b=>b.onclick=e=>{e.preventDefault();const r=RM[+b.dataset.x];
+ applyFilter({list:r.questions?{field:'cptq',value:true,label:r.label+" — RFI answers",scalar:true}:{field:'rfi',value:r.key,label:r.label}});});
 
 bars($("#frameBars"),DATA.framings.map(f=>({label:f.label,count:f.count,key:f.key})),{color:"var(--teal)",onClick:i=>applyFilter({list:{field:'framings',value:i.key,label:i.label}})});
 

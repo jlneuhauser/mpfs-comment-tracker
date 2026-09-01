@@ -160,6 +160,8 @@ def main():
     coalition_letters=[]; gcode_counts=Counter(); gcode_samples=[]
     rfi_theme=defaultdict(Counter); rfi_ask_samples=defaultdict(list); rfi_wh_asks=Counter()
     rfi_form=Counter(); rfi_wh_form=Counter()
+    # strict CPT/RUC RFI engagement (cpt_rfi_qa column; see tag_extra.py)
+    cpt_eng={"n":0,"wh":0,"form":0,"whform":0,"spill":0}; cpt_q=defaultdict(list)
     mod25_spec=Counter(); mod25_wh=0; mod25_total=0; mod25_camp=0
     def _open(txt):
         t=re.sub(r"\s+"," ",(txt or "")).strip()
@@ -231,6 +233,19 @@ def main():
             if a.get("ask") and len(rfi_ask_samples[rf])<40 and a["ask"] not in {s["ask"] for s in rfi_ask_samples[rf]}:
                 rfi_ask_samples[rf].append({"ask":a["ask"],"wh":bool(a.get("wh_angle")),"org":oname or "",
                     "id":r["id"],"url":REG_URL.format(r["id"])})
+        qa=jd(r["cpt_rfi_qa"]) if "cpt_rfi_qa" in rk else {}
+        if qa:
+            if qa.get("engages"):
+                cpt_eng["n"]+=1
+                if whx: cpt_eng["wh"]+=1
+                if is_form: cpt_eng["form"]+=1
+                if whx and is_form: cpt_eng["whform"]+=1
+                for qk,ans in (qa.get("qs") or {}).items():
+                    if qk in ("q1","q2","q3","q4","q5") and ans:
+                        cpt_q[qk].append({"text":ans,"org":oname or "","wh":whx,"form":is_form,
+                                          "id":r["id"],"url":REG_URL.format(r["id"])})
+            else:
+                cpt_eng["spill"]+=1
         if "modifier_25" in jl(r["llm_provisions"]):
             mod25_total+=1; mod25_spec[spec]+=1
             if whx: mod25_wh+=1
@@ -243,7 +258,8 @@ def main():
             "summary":(r["llm_summary"] or "").strip(),"has_attach":bool(r["llm_enriched"]),
             "rfi":jl(r["llm_rfi"]),"topics":jl(r["llm_topics"]),"framings":jl(r["llm_framings"]),"provisions":jl(r["llm_provisions"]),
             "priority":r["priority"] or "low","posted":d,"snippet":snippet,"url":REG_URL.format(r["id"],),
-            "form":is_form,"cluster":(clu if is_form else -1),"gcode":gst or ""})
+            "form":is_form,"cluster":(clu if is_form else -1),"gcode":gst or "",
+            "cptq":bool(qa.get("engages")) if qa else False})
 
     themes_out=[{"key":k,"label":THEME_META[k]["label"],"plain":PLAIN.get(k,THEME_META[k]["label"]),
         "count":theme_counts.get(k,0),"wh":THEME_META[k]["wh"],"rfi":THEME_META[k]["rfi"],
@@ -319,16 +335,42 @@ def main():
     filed_companies=[w for w in watch_out if w["group"]=="wh_company" and w["filed"]]
 
     # RFI opportunity map v2
+    QLABELS={"q1":"Where has the coding process failed patient care?",
+             "q2":"What conditions lack proper codes?",
+             "q3":"What should replace or check the CPT/RUC process?",
+             "q4":"What objective evidence should count?",
+             "q5":"Should services be grouped or bundled differently?"}
     rfi_map=[]
     for k in ["primary_care_redesign","specialty_attribution_aco","awv_well_woman","quality_data_infrastructure","cpt_coding_valuation"]:
         samples=rfi_ask_samples.get(k,[])
         samples.sort(key=lambda a:(not a["wh"],not bool(a["org"])))
-        rfi_map.append({"key":k,"label":RFI_PLAIN.get(k,k),"tech":RFI_TECH.get(k,""),
+        entry={"key":k,"label":RFI_PLAIN.get(k,k),"tech":RFI_TECH.get(k,""),
             "asked":RFI_ASKED.get(k,""),"why_wh":RFI_WHY_WH.get(k,""),
             "total":rfi_total.get(k,0),"wh":rfi_wh.get(k,0),"wh_asks":rfi_wh_asks.get(k,0),
             "form":rfi_form.get(k,0),"wh_form":rfi_wh_form.get(k,0),
             "themes":[{"t":t,"n":n} for t,n in rfi_theme.get(k,Counter()).most_common(6)],
-            "asks":samples[:5]})
+            "asks":samples[:5]}
+        if k=="cpt_coding_valuation" and cpt_eng["n"]:
+            # strict view: only comments that actually engage the II.H valuation-system RFI
+            entry.update({"total":cpt_eng["n"],"wh":cpt_eng["wh"],"form":cpt_eng["form"],
+                "wh_form":cpt_eng["whform"],"spillover":cpt_eng["spill"],"themes":[],"asks":[]})
+            qs=[]
+            for qk in ("q1","q2","q3","q4","q5"):
+                lst=cpt_q.get(qk,[])
+                if not lst: continue
+                # one women's-health answer + one contrasting answer per question;
+                # originals and named filers first, identical texts deduped
+                ranked=sorted(lst,key=lambda s:(s["form"],not bool(s["org"])))
+                seen=set(); picks=[]
+                for pool in ([s for s in ranked if s["wh"]],[s for s in ranked if not s["wh"]],ranked):
+                    for s in pool:
+                        if s["text"] in seen: continue
+                        seen.add(s["text"]); picks.append(s); break
+                    if len(picks)>=2: break
+                qs.append({"q":qk,"label":QLABELS[qk],"n":len(lst),
+                           "wh":sum(1 for s in lst if s["wh"]),"samples":picks})
+            entry["questions"]=qs
+        rfi_map.append(entry)
 
     gcode_block={"counts":{s:gcode_counts.get(s,0) for s in ("adopt_cpt","keep_gcodes","mixed","unclear")},
         "samples":gcode_samples[:10]}
