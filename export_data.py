@@ -91,6 +91,43 @@ RFI_ASKED = {
     "specialty_attribution_aco": "CMS asked: how should patients be attributed to specialists and ACOs — who counts as your doctor?",
     "quality_data_infrastructure": "CMS asked: what should Medicare measure, and how should quality data flow?",
 }
+# bite-sized decoder terms per RFI (plain-person definitions, rendered as chips)
+RFI_DECODER = {
+    "cpt_coding_valuation": [
+        ("CPT codes","the numbered catalog of every billable medical service — if it isn't in the catalog, it can't be paid for"),
+        ("The RUC","a committee of physicians convened by the AMA that recommends what each service should pay; CMS historically accepts ~9 in 10 of its numbers"),
+        ("RVUs","the “work units” behind every Medicare price")],
+    "primary_care_redesign": [
+        ("APCM","a monthly payment for managing your ongoing care, instead of billing visit by visit"),
+        ("Longitudinal care","care that happens across months of check-ins and counseling — the kind quick-visit billing undercounts")],
+    "awv_well_woman": [
+        ("AWV","the Annual Wellness Visit — the free yearly planning check-in Medicare covers (it is not a full physical)")],
+    "specialty_attribution_aco": [
+        ("ACO","an Accountable Care Organization — a network of doctors and hospitals Medicare pays as a team to manage your whole care"),
+        ("Attribution","Medicare's method for deciding which doctor “counts” as yours — that doctor gets the credit, the data, and the payment incentives for your care")],
+    "quality_data_infrastructure": [
+        ("MVP","a bundled scorecard of quality measures Medicare uses to grade specialists"),
+        ("Quality measure","a tracked statistic (screening rates, outcomes) — in Medicare, what isn't measured is invisible")],
+}
+# "for women's health to consider" — the teaching block per RFI
+RFI_CONSIDER = {
+    "cpt_coding_valuation": [
+        "Ask for a routine sex-based audit of prices: identical work should never pay less because the patient is a woman.",
+        "Name the missing codes: menopause management, endometriosis care by complexity, perimenopause — conditions the catalog can't see today.",
+        "Push for objective evidence — operating-room logs and registry time data, not self-reported surveys — because that's the evidence CMS says it acts on."],
+    "primary_care_redesign": [
+        "Menopause and midlife care are months of counseling, not a 15-minute visit — any new payment model should count that work.",
+        "Ask whether the monthly-payment model will include menopause management explicitly, or leave it priced as a quick visit."],
+    "awv_well_woman": [
+        "This is the opening to build a real well-woman visit into Medicare: menopause status, bone health, and heart risk as named components.",
+        "Almost nobody is answering this question — a handful of specific, evidence-backed answers could shape the visit for a generation."],
+    "specialty_attribution_aco": [
+        "For many women, the OB/GYN is the main doctor. If Medicare's rules don't recognize that, women's care gets credited to someone else.",
+        "Ask CMS to let an OB/GYN count as a woman's principal physician in these doctor networks."],
+    "quality_data_infrastructure": [
+        "There is no menopause-management measure on any Medicare scorecard. Propose one — what gets measured gets managed.",
+        "Ask for maternal-health and screening outcomes to be trackable in the data CMS is designing now."],
+}
 RFI_WHY_WH = {
     "cpt_coding_valuation": "This is where gynecologic undervaluation gets fixed: decades of research show female-coded procedures priced ~30% below male-coded equivalents. Evidence standards set here decide whether that record can move CMS.",
     "primary_care_redesign": "Menopause, midlife and preventive women's care are longitudinal, team-based medicine — exactly what visit-by-visit payment fails. Whatever model CMS builds here is the future home of that care.",
@@ -231,8 +268,8 @@ def main():
             rfi_theme[rf][th]+=1
             if a.get("wh_angle"): rfi_wh_asks[rf]+=1
             if a.get("ask") and len(rfi_ask_samples[rf])<40 and a["ask"] not in {s["ask"] for s in rfi_ask_samples[rf]}:
-                rfi_ask_samples[rf].append({"ask":a["ask"],"wh":bool(a.get("wh_angle")),"org":oname or "",
-                    "id":r["id"],"url":REG_URL.format(r["id"])})
+                rfi_ask_samples[rf].append({"ask":(a.get("plain") or a["ask"]),"wh":bool(a.get("wh_angle")),
+                    "org":oname or "","id":r["id"],"url":REG_URL.format(r["id"])})
         qa=jd(r["cpt_rfi_qa"]) if "cpt_rfi_qa" in rk else {}
         if qa:
             if qa.get("engages"):
@@ -240,10 +277,11 @@ def main():
                 if whx: cpt_eng["wh"]+=1
                 if is_form: cpt_eng["form"]+=1
                 if whx and is_form: cpt_eng["whform"]+=1
+                qplain=qa.get("qs_plain") or {}
                 for qk,ans in (qa.get("qs") or {}).items():
                     if qk in ("q1","q2","q3","q4","q5") and ans:
-                        cpt_q[qk].append({"text":ans,"org":oname or "","wh":whx,"form":is_form,
-                                          "id":r["id"],"url":REG_URL.format(r["id"])})
+                        cpt_q[qk].append({"text":(qplain.get(qk) or ans),"org":oname or "","wh":whx,
+                                          "form":is_form,"id":r["id"],"url":REG_URL.format(r["id"])})
             else:
                 cpt_eng["spill"]+=1
         if "modifier_25" in jl(r["llm_provisions"]):
@@ -346,6 +384,8 @@ def main():
         samples.sort(key=lambda a:(not a["wh"],not bool(a["org"])))
         entry={"key":k,"label":RFI_PLAIN.get(k,k),"tech":RFI_TECH.get(k,""),
             "asked":RFI_ASKED.get(k,""),"why_wh":RFI_WHY_WH.get(k,""),
+            "decoder":[{"t":t,"d":dd} for t,dd in RFI_DECODER.get(k,[])],
+            "consider":RFI_CONSIDER.get(k,[]),
             "total":rfi_total.get(k,0),"wh":rfi_wh.get(k,0),"wh_asks":rfi_wh_asks.get(k,0),
             "form":rfi_form.get(k,0),"wh_form":rfi_wh_form.get(k,0),
             "themes":[{"t":t,"n":n} for t,n in rfi_theme.get(k,Counter()).most_common(6)],

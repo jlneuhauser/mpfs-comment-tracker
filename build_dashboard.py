@@ -158,6 +158,11 @@ section{margin:0 0 26px}
 .asklist li b.who{color:var(--ink)}
 .wtag{font-size:10.5px;color:var(--teal);border:1px solid var(--teal);border-radius:100px;padding:1px 8px;font-weight:600;margin-left:6px;white-space:nowrap}
 .asked{font-size:13.5px;color:var(--ink);font-weight:600;margin:10px 0 2px}
+.decoder{display:flex;flex-direction:column;gap:5px;margin:10px 0 2px}
+.decoder .dt{font-size:12.5px;color:var(--text-2);line-height:1.5}
+.decoder .dt b{color:var(--ink)}
+.consider{margin:4px 0 0;padding:0;list-style:none}
+.consider li{font-size:13.5px;color:var(--text-2);padding:2px 0 2px 12px;border-left:2px solid var(--teal);margin:8px 0;line-height:1.5}
 .whywh{font-size:13px;color:var(--text-2);line-height:1.55;margin:4px 0 0}
 .caret{color:var(--muted);transition:transform .15s}
 details[open] .caret{transform:rotate(90deg)}
@@ -247,7 +252,7 @@ footer .wordmark{margin-bottom:12px}footer .fnote{font-size:13px;color:#9fb8b3;m
     <div class="panel"><div class="verdict" id="m25Lead"></div><div class="bars" id="m25Bars"></div></div></section>
 
   <section><div class="sec-head"><p class="eyebrow">The opportunity map</p><h2 class="sec-h">The five RFIs: what's on the record, what's missing</h2>
-    <p class="hint">The five questions where CMS explicitly asked for input &mdash; what CMS asked, and what commenters are asking for. Click a question to open it.</p></div>
+    <p class="hint">An RFI (&ldquo;request for information&rdquo;) is CMS thinking out loud: no policy is proposed yet, and the answers shape what lands in future rules. CMS includes a few in every fee-schedule proposal &mdash; this year's five are below. What CMS asked, what commenters are saying, and what women's health should bring. Click a question to open it.</p></div>
     <div id="rfiWrap"></div></section>
 
   <section><div class="sec-head"><p class="eyebrow">The hidden stakes</p><h2 class="sec-h">General fights with a women's-health consequence</h2>
@@ -449,13 +454,15 @@ $("#rfiWrap").innerHTML=RM.map((r,x)=>{
    <div class="rval"><b>${r.wh}</b> WH / ${r.total}</div><span class="caret">&#9656;</span></div></summary>
   <div class="body">
    <div class="asked">${esc(r.asked)}</div>
+   ${(r.decoder||[]).length?`<div class="decoder">${r.decoder.map(d=>`<div class="dt"><b>${esc(d.t)}</b> &mdash; ${esc(d.d)}.</div>`).join("")}</div>`:""}
    <div class="whywh"><b style="color:var(--teal)">Why it matters for women's health:</b> ${esc(r.why_wh)}</div>
+   ${(r.consider||[]).length?`<div class="bhead">For women's health to consider</div><ul class="consider">${r.consider.map(c=>`<li>${esc(c)}</li>`).join("")}</ul>`:""}
    <div class="bhead">${fmt(r.total)} comments &mdash; ${fmt(r.total-(r.form||0))} original · ${fmt(r.form||0)} from template campaigns${r.wh?` &middot; <span style="color:var(--teal)">${fmt(r.wh)} women's-health</span> (${fmt(r.wh-(r.wh_form||0))} original)`:""}</div>
    ${r.questions?r.questions.map(qq=>`<div class="asked" style="margin-top:12px">${esc(qq.label)} <span style="color:var(--muted);font-weight:400">&middot; ${qq.n} answer${qq.n===1?"":"s"}${qq.wh?` &middot; <span style='color:var(--teal)'>${qq.wh} women's-health</span>`:""}</span></div>
-     <ul class="asklist" style="margin-top:2px">${qq.samples.map(s=>`<li>&ldquo;${esc(s.text)}&rdquo;${s.org?` <b class="who">&mdash; ${esc(s.org)}</b>`:""}${s.wh?'<span class="wtag">women\'s health</span>':''} &nbsp;<a href="${s.url}" target="_blank" rel="noopener">Read &rarr;</a></li>`).join("")}</ul>`).join(""):""}
+     <ul class="asklist" style="margin-top:2px">${qq.samples.map(s=>`<li>&ldquo;${esc(s.text)}&rdquo;${s.wh?'<span class="wtag">women\'s health</span>':''} &nbsp;<a href="${s.url}" target="_blank" rel="noopener">Read &rarr;</a></li>`).join("")}</ul>`).join(""):""}
    ${r.spillover?`<div class="bnote" style="margin-top:12px">${fmt(r.spillover)} more comments were filed near this RFI but address specific rule provisions (the same-day cut, the maternity codes, individual code values) &mdash; they're counted in those sections instead.</div>`:""}
    ${!r.questions&&themes.length?`<div class="rfth">${themes.map(t=>`<span class="chip">${esc(t.t)} <b>${t.n}</b></span>`).join("")}</div>`:""}
-   ${!r.questions&&asks.length?`<div class="bhead">From the record</div><ul class="asklist">${asks.map(a=>`<li>&ldquo;${esc(a.ask)}&rdquo;${a.org?` <b class="who">&mdash; ${esc(a.org)}</b>`:""}${a.wh?'<span class="wtag">women\'s health</span>':''} &nbsp;<a href="${a.url}" target="_blank" rel="noopener">Read &rarr;</a></li>`).join("")}</ul>`:""}
+   ${!r.questions&&asks.length?`<div class="bhead">From the record</div><ul class="asklist">${asks.map(a=>`<li>&ldquo;${esc(a.ask)}&rdquo;${a.wh?'<span class="wtag">women\'s health</span>':''} &nbsp;<a href="${a.url}" target="_blank" rel="noopener">Read &rarr;</a></li>`).join("")}</ul>`:""}
    ${hot?`<div class="bnote" style="border-left:3px solid var(--magenta);padding-left:10px">Almost no women's-health comments on this question yet.</div>`:""}
    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
     <button class="activef rfiall" data-x="${x}">Read ${r.questions?"the "+fmt(r.total)+" answers":"all "+fmt(r.total)+" comments"} &rarr;</button>
