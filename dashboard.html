@@ -1,9 +1,9 @@
 <!DOCTYPE html><html lang="en" data-theme="light"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CY2027 Physician Fee Schedule — Comment Tracker | 51&amp;</title>
+<title>Getting Women's Health on the Record — CY2027 Medicare Comment Tracker | 51&amp;</title>
 <meta name="description" content="51& reads and tags every public comment on Medicare's proposed CY2027 Physician Fee Schedule — who showed up, what they said, and where women's health appears. Updated daily through September 14, 2026.">
 <link rel="icon" href="https://cdn.prod.website-files.com/68f026f80cae49183f869cc9/68f026f80cae49183f869dad_asset-icon-asterix-pink.svg">
-<meta property="og:title" content="The complete public record on CY2027, read through a women's-health lens">
+<meta property="og:title" content="Getting women's health on the record — the CY2027 Medicare comment tracker">
 <meta property="og:description" content="51& reads and tags every public comment on Medicare's proposed 2027 payment rule — who's commenting, what they say, and where women's health shows up. Updated daily through September 14.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="51&">
@@ -13,7 +13,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Medicare is deciding how women's health gets paid for in 2027. You have until Sept 14 to shape it.">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="The complete public record on CY2027, read through a women's-health lens">
+<meta name="twitter:title" content="Getting women's health on the record — the CY2027 Medicare comment tracker">
 <meta name="twitter:description" content="Every public comment on Medicare's proposed 2027 rule, read and tagged daily — through a women's-health lens.">
 <meta name="twitter:image" content="https://medicarefeeschedule.51and.com/og-comments.png">
 <style>
@@ -207,8 +207,8 @@ footer .wordmark{margin-bottom:12px}footer .fnote{font-size:13px;color:#9fb8b3;m
 </div></nav>
 <header class="hero"><div class="inner">
   <p class="eyebrow">Live comment tracker &middot; Docket CMS-2026-2377 &middot; Updated daily</p>
-  <h1>The complete public record on CY2027, <span class="accent">read through a women's-health lens.</span></h1>
-  <p class="lede">We read every public comment on the Physician Fee Schedule &mdash; <b id="heroCount"></b>, inline text and attached letters &mdash; and tag each one for specialty, stance, topic, women's-health relevance, and who filed it.</p>
+  <h1>Getting women's health <span class="accent">on the record.</span></h1>
+  <p class="lede">Public comments shape Medicare's 2027 physician-payment rule &mdash; and what Medicare pays for shapes care far beyond Medicare. We read every comment as it lands (<b id="heroCount"></b> so far, letters and attachments in full) and track whether women's health is being heard.</p>
   <div class="cta-row">
     <a class="btn btn-pink" href="https://medicarefeeschedule.51and.com/file" target="_blank" rel="noopener">File a comment &rarr;</a>
     <a class="btn btn-ghost" href="https://medicarefeeschedule.51and.com/" target="_blank" rel="noopener">Read 51&amp;'s full analysis &darr;</a></div>
@@ -217,18 +217,18 @@ footer .wordmark{margin-bottom:12px}footer .fnote{font-size:13px;color:#9fb8b3;m
 <main class="inner">
   <div class="method"><p><b>How to read this.</b> A census of every comment on docket CMS-2026-2377 &mdash; who showed up, not a poll. Full text read, including <span id="attachN"></span> attached letters. Tags are descriptive, not political. Updated daily.</p></div>
 
-  <div class="layer"><div class="tag">The 51&amp; women's-health scorecard</div>
-    <h2>How women's health is doing in this docket</h2></div>
+  <div class="layer"><div class="tag">The 51&amp; scorecard</div>
+    <h2>Is women's health getting on the record?</h2></div>
 
-  <section><div class="sec-head"><p class="eyebrow">The women's-health signal</p><h2 class="sec-h">How much of the docket touches women's health</h2></div>
+  <section><div class="sec-head"><p class="eyebrow">The women's-health signal</p><h2 class="sec-h">How many comments touch women's health</h2></div>
     <div class="panel"><div class="tierrow">
       <div class="tierstat"><div class="big" id="tierBig"></div><div class="sub" id="tierSub"></div></div>
       <div style="flex:2;min-width:260px"><div class="stack" id="tierStack"></div><div class="stackleg" id="tierLeg"></div></div>
     </div>
     <div class="push" id="pushGrid"></div></div></section>
 
-  <section><div class="sec-head"><p class="eyebrow">Keyword tracker</p><h2 class="sec-h">Women's-health terms in the text</h2>
-    <p class="hint">How often each term appears across the docket. Click a keyword to read those comments.</p></div>
+  <section><div class="sec-head"><p class="eyebrow">Keyword tracker</p><h2 class="sec-h">Women's-health terms in the comments</h2>
+    <p class="hint">How often each term appears across the comments submitted so far. Click a keyword to read those comments.</p></div>
     <div class="panel"><div class="kwrap" id="kwrap"></div></div></section>
 
   <section id="gcode"><div class="sec-head"><p class="eyebrow">The maternity-codes verdict</p><h2 class="sec-h">The G-code question: the docket has answered</h2>
@@ -258,7 +258,7 @@ footer .wordmark{margin-bottom:12px}footer .fnote{font-size:13px;color:#9fb8b3;m
   <section><div class="sec-head"><p class="eyebrow">Directly about women's health</p><h2 class="sec-h">What the core comments cover</h2><p class="hint">Click any bar to filter the browser below.</p></div>
     <div class="panel"><div class="bars" id="topicBars"></div></div></section>
 
-  <div class="layer"><div class="tag">The whole docket, in context</div>
+  <div class="layer"><div class="tag">The whole record, in context</div>
     <h2>Who showed up, and what they said</h2>
     <p class="intro">The neutral backdrop behind the scorecard: every comment, characterized without a women's-health filter.</p></div>
 
@@ -335,7 +335,7 @@ const GC=DATA.gcode||{counts:{},samples:[]};const gFor=GC.counts.adopt_cpt||0,gK
 const WLIST=DATA.watchlist||[];const socAll=WLIST.filter(w=>w.group==='wh_society'),socOn=socAll.filter(w=>w.filed);
 const M25=DATA.mod25||{total:0,wh:0,by_spec:[]};
 const kpis=[
- {v:fmt(M.total),l:"Comments read — the whole docket",x:(M.docket_total&&M.docket_total>M.total)?("of "+fmt(M.docket_total)+" filed so far — we're catching up as the surge lands"):("Docket "+M.docket+", updated daily"),f:{}},
+ {v:fmt(M.total),l:"Comments read — every one, in full",x:(M.docket_total&&M.docket_total>M.total)?("of "+fmt(M.docket_total)+" filed so far — we're catching up as the surge lands"):("Docket "+M.docket+", updated daily"),f:{}},
  {v:fmt(M.wh_relevant),l:"Women's-health–relevant comments",x:M.tier.core+" directly about it · "+M.tier.stakes+" hidden stakes",cls:"wh",f:{tier:"wh"}},
  {v:fmt(gFor)+"–"+fmt(gKeep),l:"New maternity codes vs. G-code snap-back",x:"the docket's verdict so far",cls:"wh",go:"#gcode"},
  {v:socOn.length+" of "+socAll.length,l:"Women's-health societies on the record",x:"major letters land near the deadline",cls:"crit",go:"#whoSpeaks"},
@@ -516,5 +516,5 @@ $("#sgBtn").onclick=()=>{const t=$("#sgTopic").value.trim();if(!t){$("#sgMsg").t
  const body="Suggested topic to track: "+t+"\n\nWhy it matters: "+($("#sgWhy").value.trim()||"(none given)")+"\n\nFrom: "+($("#sgEmail").value.trim()||"(anonymous)")+"\n\n— Submitted from the CY2027 MPFS Comment Tracker";
  window.location.href="mailto:jodi@inwomenshealth.com?subject="+encodeURIComponent("MPFS tracker — topic suggestion: "+t)+"&body="+encodeURIComponent(body);
  $("#sgMsg").innerHTML="Thanks — your email app should open with the suggestion ready to send to 51&amp;.";$("#sgTopic").value="";$("#sgWhy").value="";$("#sgEmail").value="";};
-$("#foot").innerHTML="Generated 2026-09-01 19:40 UTC &middot; classification by 51&amp;'s watch-list taxonomy + LLM tagging on full comment text (inline + attachments) &middot; "+fmt(rows.length)+" comments &middot; source: <a href='https://www.regulations.gov/docket/CMS-2026-2377' target='_blank' rel='noopener'>Regulations.gov docket "+M.docket+"</a>";
+$("#foot").innerHTML="Generated 2026-09-01 19:44 UTC &middot; classification by 51&amp;'s watch-list taxonomy + LLM tagging on full comment text (inline + attachments) &middot; "+fmt(rows.length)+" comments &middot; source: <a href='https://www.regulations.gov/docket/CMS-2026-2377' target='_blank' rel='noopener'>Regulations.gov docket "+M.docket+"</a>";
 </script></body></html>
