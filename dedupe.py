@@ -13,7 +13,7 @@ import sqlite3, re, os, sys, hashlib
 from collections import defaultdict
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-DB   = os.path.join(BASE, "corpus.db")
+DB   = os.path.join(BASE, os.environ.get("DEDUPE_DB", "corpus.db"))
 
 MIN_WORDS   = 25     # shorter comments aren't eligible as "templates" (too little signal)
 SHINGLE_N   = 5      # word n-gram size
