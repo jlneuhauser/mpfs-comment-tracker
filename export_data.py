@@ -194,6 +194,7 @@ def main():
     camp_members=defaultdict(list); camp_stance=defaultdict(Counter); camp_wh=Counter(); camp_open=defaultdict(Counter)
     # new: org roster / G-code verdict / RFI ask map / same-day cut
     org_roster=defaultdict(lambda:{"n":0,"wh":0,"type":"unknown","ids":[],"stances":Counter()})
+    regs_org_names=[]
     coalition_letters=[]; gcode_counts=Counter(); gcode_samples=[]
     rfi_theme=defaultdict(Counter); rfi_ask_samples=defaultdict(list); rfi_wh_asks=Counter()
     rfi_form=Counter(); rfi_wh_form=Counter()
@@ -253,6 +254,11 @@ def main():
             key=oname.strip()
             o=org_roster[key]; o["n"]+=1; o["type"]=otype; o["ids"].append(r["id"]); o["stances"][stance]+=1
             if whx: o["wh"]+=1
+        # genuine society filings reliably fill the regulations.gov organization
+        # field (verified against the real 2025 ACOG + SWHR letters), so it feeds
+        # the watch-candidate pool too; verification still gates any "Filed" badge
+        if (r["organization"] or "").strip() and len(r["organization"].strip())>=6:
+            regs_org_names.append((r["organization"].strip(), r["id"]))
         if cosign:
             coalition_letters.append({"id":r["id"],"org":oname or (r["organization"] or "").strip() or "(unnamed)",
                 "co":cosign,"url":REG_URL.format(r["id"]),"wh":whx})
@@ -340,6 +346,8 @@ def main():
     for cl in coalition_letters:
         for co in cl["co"]:
             all_filed_names.append((_norm(co),co,cl["id"],"cosigner"))
+    for orgfield,cid in regs_org_names:
+        all_filed_names.append((_norm(orgfield),orgfield,cid,"filed"))
     def _match(entry):
         """All candidate (comment_id, via) hits for one watchlist entry."""
         hits=[]
