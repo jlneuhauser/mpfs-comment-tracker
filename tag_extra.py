@@ -37,6 +37,20 @@ SYS_RFI = ("The CY2027 PFS rule contains five RFIs: primary_care_redesign (team-
     "For each comment and EACH key in its rfi list: ask = <=140 chars, imperative, what they want CMS to DO on that topic; "
     "theme = 2-5 word category label; wh_angle = true only if explicitly about women's health. "
     "Return ONLY a JSON array, same order: {\"id\",\"asks\":{\"<key>\":{\"ask\",\"theme\",\"wh_angle\"}}}.")
+SYS_CPTQA = ("The CY2027 PFS rule contains a Request for Information (Section II.H) on the CPT coding and valuation SYSTEM, "
+    "posing five questions: q1 where has the coding/valuation process created challenges for patient care; q2 does code "
+    "creation follow medical necessity (what lacks proper codes); q3 what alternatives/complements to the CPT/RUC standard "
+    "(governance, process reform); q4 what more objective, empirical valuation approaches (registry/EHR time data, claims, "
+    "operative logs, audits); q5 should procedures be grouped/bundled differently. "
+    "engages=false when the comment is really about separate rule provisions: the same-day/modifier-25 cut, adopting the "
+    "2027 maternity CPT codes vs G-codes, the conversion factor, or a specific code's proposed value without arguing for "
+    "system/process reform. engages=true when it addresses the SYSTEM: RUC/CPT process flaws, valuation governance, "
+    "evidence standards, sex- or specialty-based valuation disparities/audits, missing codes for conditions, bundling "
+    "policy in general, or explicitly answers this RFI. "
+    "Return ONLY a JSON array, same order: {\"id\",\"engages\":true|false,\"qs\":{\"q1..q5\": \"<=130-char statement of the "
+    "commenter's answer, only for questions actually addressed\"}} (qs omitted when engages=false).")
+CPAT = r"RFI|request for information|RUC\b|valuation|coding system|CPT process|undervalu|misvalu|relative value|RVU|empiric|objective data|sex.?based|sex.?equit|bundl|code creation|new codes? for"
+
 SYS_WATCH = ("You verify whether an organization ACTUALLY FILED a public comment, from the letter's opening text. "
     "verified=true only if the letter is genuinely filed by (or explicitly on behalf of) the named org — letterhead, "
     "'on behalf of', or signature. Merely citing the org, quoting its position, or attaching one of its old documents "
@@ -122,6 +136,22 @@ def main(max_minutes=None):
     run_batches(db, r_items, SYS_RFI,
         lambda db,o: db.execute("UPDATE comments SET rfi_asks=? WHERE id=?",
             (json.dumps(o.get("asks") or {}), o["id"])), deadline, "rfi_asks", batch=8)
+
+    # 3b. strict CPT/RUC RFI engagement + five-question mapping
+    try: db.execute("ALTER TABLE comments ADD COLUMN cpt_rfi_qa TEXT")
+    except sqlite3.OperationalError: pass
+    c_items = []
+    for r in db.execute("""SELECT id, comment_text, llm_summary, org_name FROM comments
+                           WHERE cpt_rfi_qa IS NULL AND (llm_rfi LIKE '%cpt_coding_valuation%'
+                              OR llm_rfi LIKE '%evidence_valuation_methodology%'
+                              OR llm_rfi LIKE '%rvu_valuation_methodology%')"""):
+        full = eff(db, r["id"], r["comment_text"], 30000)
+        c_items.append({"id": r["id"], "org": r["org_name"] or "", "summary": r["llm_summary"] or "",
+                        "snippet": windows(full, CPAT, w=380, maxlen=2400)})
+    run_batches(db, c_items, SYS_CPTQA,
+        lambda db,o: db.execute("UPDATE comments SET cpt_rfi_qa=? WHERE id=?",
+            (json.dumps({"engages": bool(o.get("engages")), "qs": o.get("qs") or {}}, ensure_ascii=False), o["id"])),
+        deadline, "cpt_rfi_qa", batch=8)
 
     # 4. verify watchlist scoreboard candidates (export_data.py inserts them)
     try:

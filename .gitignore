@@ -8,3 +8,9 @@ public/
 corpus.db
 corpus.db.gz
 public/
+corpus_2025.db
+corpus_2025.db-journal
+corpus_2025.db.gz
+baseline.log
+pdfs_2025/
+comment-tool.html

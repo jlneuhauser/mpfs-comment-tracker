@@ -91,6 +91,43 @@ RFI_ASKED = {
     "specialty_attribution_aco": "CMS asked: how should patients be attributed to specialists and ACOs — who counts as your doctor?",
     "quality_data_infrastructure": "CMS asked: what should Medicare measure, and how should quality data flow?",
 }
+# bite-sized decoder terms per RFI (plain-person definitions, rendered as chips)
+RFI_DECODER = {
+    "cpt_coding_valuation": [
+        ("CPT codes","the numbered catalog of every billable medical service — if it isn't in the catalog, it can't be paid for"),
+        ("The RUC","a committee of physicians convened by the AMA that recommends what each service should pay; CMS historically accepts ~9 in 10 of its numbers"),
+        ("RVUs","the “work units” behind every Medicare price")],
+    "primary_care_redesign": [
+        ("APCM","a monthly payment for managing your ongoing care, instead of billing visit by visit"),
+        ("Longitudinal care","care that happens across months of check-ins and counseling — the kind quick-visit billing undercounts")],
+    "awv_well_woman": [
+        ("AWV","the Annual Wellness Visit — the free yearly planning check-in Medicare covers (it is not a full physical)")],
+    "specialty_attribution_aco": [
+        ("ACO","an Accountable Care Organization — a network of doctors and hospitals Medicare pays as a team to manage your whole care"),
+        ("Attribution","Medicare's method for deciding which doctor “counts” as yours — that doctor gets the credit, the data, and the payment incentives for your care")],
+    "quality_data_infrastructure": [
+        ("MVP","a bundled scorecard of quality measures Medicare uses to grade specialists"),
+        ("Quality measure","a tracked statistic (screening rates, outcomes) — in Medicare, what isn't measured is invisible")],
+}
+# "for women's health to consider" — the teaching block per RFI
+RFI_CONSIDER = {
+    "cpt_coding_valuation": [
+        "Ask for a routine sex-based audit of prices: identical work should never pay less because the patient is a woman.",
+        "Name the missing codes: menopause management, endometriosis care by complexity, perimenopause — conditions the catalog can't see today.",
+        "Push for objective evidence — operating-room logs and registry time data, not self-reported surveys — because that's the evidence CMS says it acts on."],
+    "primary_care_redesign": [
+        "Menopause and midlife care are months of counseling, not a 15-minute visit — any new payment model should count that work.",
+        "Ask whether the monthly-payment model will include menopause management explicitly, or leave it priced as a quick visit."],
+    "awv_well_woman": [
+        "This is the opening to build a real well-woman visit into Medicare: menopause status, bone health, and heart risk as named components.",
+        "Almost nobody is answering this question — a handful of specific, evidence-backed answers could shape the visit for a generation."],
+    "specialty_attribution_aco": [
+        "For many women, the OB/GYN is the main doctor. If Medicare's rules don't recognize that, women's care gets credited to someone else.",
+        "Ask CMS to let an OB/GYN count as a woman's principal physician in these doctor networks."],
+    "quality_data_infrastructure": [
+        "There is no menopause-management measure on any Medicare scorecard. Propose one — what gets measured gets managed.",
+        "Ask for maternal-health and screening outcomes to be trackable in the data CMS is designing now."],
+}
 RFI_WHY_WH = {
     "cpt_coding_valuation": "This is where gynecologic undervaluation gets fixed: decades of research show female-coded procedures priced ~30% below male-coded equivalents. Evidence standards set here decide whether that record can move CMS.",
     "primary_care_redesign": "Menopause, midlife and preventive women's care are longitudinal, team-based medicine — exactly what visit-by-visit payment fails. Whatever model CMS builds here is the future home of that care.",
@@ -126,6 +163,20 @@ def norm_theme(t):
         if _re.search(pat, tl): return lab
     return "Other asks"
 
+_ORGISH = _re.compile(r"(?i)\b(assoc|societ|college|academ|center|centre|coalition|alliance|institute|hospital|health|medical|clinic|group|foundation|federation|network|partners|solutions|services|inc\b|llc|corp|pllc|pc\b)\b")
+def _dedupe_coalitions(letters):
+    """Keep letters whose co-signers are organizations (not individual clinicians
+    at the same practice), and collapse near-identical repeat filings."""
+    out, seen = [], set()
+    for c in sorted(letters, key=lambda c: -len(c["co"])):
+        co = [x for x in c["co"] if _ORGISH.search(x or "")]
+        if not co: continue
+        key = ((c["org"] or "").strip().lower(), tuple(sorted(x.strip().lower() for x in co)))
+        if key in seen: continue
+        seen.add(key)
+        out.append({**c, "co": co})
+    return out[:10]
+
 def top(counter, n, plain=None, key_is_plain=False):
     out=[]
     for k,c in counter.most_common(n):
@@ -145,6 +196,9 @@ def main():
     org_roster=defaultdict(lambda:{"n":0,"wh":0,"type":"unknown","ids":[],"stances":Counter()})
     coalition_letters=[]; gcode_counts=Counter(); gcode_samples=[]
     rfi_theme=defaultdict(Counter); rfi_ask_samples=defaultdict(list); rfi_wh_asks=Counter()
+    rfi_form=Counter(); rfi_wh_form=Counter()
+    # strict CPT/RUC RFI engagement (cpt_rfi_qa column; see tag_extra.py)
+    cpt_eng={"n":0,"wh":0,"form":0,"whform":0,"spill":0}; cpt_q=defaultdict(list)
     mod25_spec=Counter(); mod25_wh=0; mod25_total=0; mod25_camp=0
     def _open(txt):
         t=re.sub(r"\s+"," ",(txt or "")).strip()
@@ -182,6 +236,9 @@ def main():
         for rf in jl(r["llm_rfi"]):
             rfi_total[rf]+=1
             if whx: rfi_wh[rf]+=1
+            if is_form:
+                rfi_form[rf]+=1
+                if whx: rfi_wh_form[rf]+=1
         if tier=="stakes" and (r["llm_stakes_note"] or "").strip():
             stakes_list.append({"id":r["id"],"org":(r["organization"] or "").strip(),"specialty":spec,
                 "note":r["llm_stakes_note"].strip(),"quote":(r["llm_quote"] or "").strip(),
@@ -210,9 +267,23 @@ def main():
             th=norm_theme(a.get("theme") or a.get("ask") or "")
             rfi_theme[rf][th]+=1
             if a.get("wh_angle"): rfi_wh_asks[rf]+=1
-            if a.get("ask") and len(rfi_ask_samples[rf])<40:
-                rfi_ask_samples[rf].append({"ask":a["ask"],"wh":bool(a.get("wh_angle")),"org":oname or "",
-                    "id":r["id"],"url":REG_URL.format(r["id"])})
+            if a.get("ask") and len(rfi_ask_samples[rf])<40 and a["ask"] not in {s["ask"] for s in rfi_ask_samples[rf]}:
+                rfi_ask_samples[rf].append({"ask":(a.get("plain") or a["ask"]),"wh":bool(a.get("wh_angle")),
+                    "org":oname or "","id":r["id"],"url":REG_URL.format(r["id"])})
+        qa=jd(r["cpt_rfi_qa"]) if "cpt_rfi_qa" in rk else {}
+        if qa:
+            if qa.get("engages"):
+                cpt_eng["n"]+=1
+                if whx: cpt_eng["wh"]+=1
+                if is_form: cpt_eng["form"]+=1
+                if whx and is_form: cpt_eng["whform"]+=1
+                qplain=qa.get("qs_plain") or {}
+                for qk,ans in (qa.get("qs") or {}).items():
+                    if qk in ("q1","q2","q3","q4","q5") and ans:
+                        cpt_q[qk].append({"text":(qplain.get(qk) or ans),"org":oname or "","wh":whx,
+                                          "form":is_form,"id":r["id"],"url":REG_URL.format(r["id"])})
+            else:
+                cpt_eng["spill"]+=1
         if "modifier_25" in jl(r["llm_provisions"]):
             mod25_total+=1; mod25_spec[spec]+=1
             if whx: mod25_wh+=1
@@ -225,7 +296,8 @@ def main():
             "summary":(r["llm_summary"] or "").strip(),"has_attach":bool(r["llm_enriched"]),
             "rfi":jl(r["llm_rfi"]),"topics":jl(r["llm_topics"]),"framings":jl(r["llm_framings"]),"provisions":jl(r["llm_provisions"]),
             "priority":r["priority"] or "low","posted":d,"snippet":snippet,"url":REG_URL.format(r["id"],),
-            "form":is_form,"cluster":(clu if is_form else -1),"gcode":gst or ""})
+            "form":is_form,"cluster":(clu if is_form else -1),"gcode":gst or "",
+            "cptq":bool(qa.get("engages")) if qa else False})
 
     themes_out=[{"key":k,"label":THEME_META[k]["label"],"plain":PLAIN.get(k,THEME_META[k]["label"]),
         "count":theme_counts.get(k,0),"wh":THEME_META[k]["wh"],"rfi":THEME_META[k]["rfi"],
@@ -246,6 +318,19 @@ def main():
     camp_submissions=sum(c["size"] for c in campaigns)
 
     attach_comments=db.execute("select count(distinct comment_id) from attachments where length(extracted_text)>50").fetchone()[0]
+
+    # live docket size (1 API request; runs in CI where the key exists — page then
+    # shows "X read of Y filed" honestly while the pipeline catches up)
+    docket_total=None
+    if os.environ.get("REGS_API_KEY"):
+        try:
+            import requests as _rq
+            docket_total=_rq.get("https://api.regulations.gov/v4/comments",
+                params={"filter[docketId]":TAX["docket"],"page[size]":5,
+                        "api_key":os.environ["REGS_API_KEY"]},timeout=30
+                ).json()["meta"]["totalElements"]
+        except Exception:
+            pass
 
     # --- watchlist scoreboard (societies may show absence; companies celebrate-only)
     def _norm(s): return re.sub(r"[^a-z0-9& ]"," ",(s or "").lower()).strip()
@@ -301,15 +386,44 @@ def main():
     filed_companies=[w for w in watch_out if w["group"]=="wh_company" and w["filed"]]
 
     # RFI opportunity map v2
+    QLABELS={"q1":"Where has the coding process failed patient care?",
+             "q2":"What conditions lack proper codes?",
+             "q3":"What should replace or check the CPT/RUC process?",
+             "q4":"What objective evidence should count?",
+             "q5":"Should services be grouped or bundled differently?"}
     rfi_map=[]
     for k in ["primary_care_redesign","specialty_attribution_aco","awv_well_woman","quality_data_infrastructure","cpt_coding_valuation"]:
         samples=rfi_ask_samples.get(k,[])
         samples.sort(key=lambda a:(not a["wh"],not bool(a["org"])))
-        rfi_map.append({"key":k,"label":RFI_PLAIN.get(k,k),"tech":RFI_TECH.get(k,""),
+        entry={"key":k,"label":RFI_PLAIN.get(k,k),"tech":RFI_TECH.get(k,""),
             "asked":RFI_ASKED.get(k,""),"why_wh":RFI_WHY_WH.get(k,""),
+            "decoder":[{"t":t,"d":dd} for t,dd in RFI_DECODER.get(k,[])],
+            "consider":RFI_CONSIDER.get(k,[]),
             "total":rfi_total.get(k,0),"wh":rfi_wh.get(k,0),"wh_asks":rfi_wh_asks.get(k,0),
+            "form":rfi_form.get(k,0),"wh_form":rfi_wh_form.get(k,0),
             "themes":[{"t":t,"n":n} for t,n in rfi_theme.get(k,Counter()).most_common(6)],
-            "asks":samples[:5]})
+            "asks":samples[:5]}
+        if k=="cpt_coding_valuation" and cpt_eng["n"]:
+            # strict view: only comments that actually engage the II.H valuation-system RFI
+            entry.update({"total":cpt_eng["n"],"wh":cpt_eng["wh"],"form":cpt_eng["form"],
+                "wh_form":cpt_eng["whform"],"spillover":cpt_eng["spill"],"themes":[],"asks":[]})
+            qs=[]
+            for qk in ("q1","q2","q3","q4","q5"):
+                lst=cpt_q.get(qk,[])
+                if not lst: continue
+                # one women's-health answer + one contrasting answer per question;
+                # originals and named filers first, identical texts deduped
+                ranked=sorted(lst,key=lambda s:(s["form"],not bool(s["org"])))
+                seen=set(); picks=[]
+                for pool in ([s for s in ranked if s["wh"]],[s for s in ranked if not s["wh"]],ranked):
+                    for s in pool:
+                        if s["text"] in seen: continue
+                        seen.add(s["text"]); picks.append(s); break
+                    if len(picks)>=2: break
+                qs.append({"q":qk,"label":QLABELS[qk],"n":len(lst),
+                           "wh":sum(1 for s in lst if s["wh"]),"samples":picks})
+            entry["questions"]=qs
+        rfi_map.append(entry)
 
     gcode_block={"counts":{s:gcode_counts.get(s,0) for s in ("adopt_cpt","keep_gcodes","mixed","unclear")},
         "samples":gcode_samples[:10]}
@@ -324,7 +438,8 @@ def main():
             "tier":{"core":tier_counts.get("core",0),"stakes":tier_counts.get("stakes",0),"general":tier_counts.get("general",0)},
             "n_specialties":len([k for k in spec_counts if k not in("Other/Unclear",)]),
             "attach_comments":attach_comments,
-            "campaign_submissions":camp_submissions,"original":total-camp_submissions,"n_campaigns":len(campaigns)},
+            "campaign_submissions":camp_submissions,"original":total-camp_submissions,"n_campaigns":len(campaigns),
+            "docket_total":docket_total},
         "docket":{
             "specialties":top(spec_counts,15),
             "stance":[{"key":k,"label":STANCE_PLAIN.get(k,k),"count":stance_counts.get(k,0)} for k in ["oppose","support","mixed","neutral_informational"]],
@@ -344,7 +459,7 @@ def main():
         "watchlist":watch_out,
         "wh_voices":wh_voices,
         "filed_companies":filed_companies,
-        "coalitions":sorted(coalition_letters,key=lambda c:-len(c["co"]))[:10],
+        "coalitions":_dedupe_coalitions(coalition_letters),
         "gcode":gcode_block,
         "mod25":mod25_block,
         "campaigns":campaigns[:12],
@@ -355,6 +470,15 @@ def main():
         "plain_map":{THEME_META[k]["label"]:PLAIN.get(k,THEME_META[k]["label"]) for k in THEME_META},
         "rows":out_rows,
     }
+    # 51& voice rule: no em dashes anywhere on the site, including LLM-generated
+    # summaries/asks/quotes. Scrub every string in the export.
+    def _scrub(x):
+        if isinstance(x,str):
+            return x.replace(" — ",", ").replace("— ",", ").replace(" —",", ").replace("—",", ")
+        if isinstance(x,list): return [_scrub(v) for v in x]
+        if isinstance(x,dict): return {k:_scrub(v) for k,v in x.items()}
+        return x
+    data=_scrub(data)
     json.dump(data,open(os.path.join(BASE,"data.json"),"w"),separators=(",",":"))
     print(f"total={total} wh_relevant(LLM)={data['meta']['wh_relevant']} tiers={data['meta']['tier']}")
     print("stance:",dict(stance_counts))
