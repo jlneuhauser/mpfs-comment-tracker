@@ -51,10 +51,29 @@ SYS_CPTQA = ("The CY2027 PFS rule contains a Request for Information (Section II
     "commenter's answer, only for questions actually addressed\"}} (qs omitted when engages=false).")
 CPAT = r"RFI|request for information|RUC\b|valuation|coding system|CPT process|undervalu|misvalu|relative value|RVU|empiric|objective data|sex.?based|sex.?equit|bundl|code creation|new codes? for"
 
-SYS_WATCH = ("You verify whether an organization ACTUALLY FILED a public comment, from the letter's opening text. "
-    "verified=true only if the letter is genuinely filed by (or explicitly on behalf of) the named org — letterhead, "
-    "'on behalf of', or signature. Merely citing the org, quoting its position, or attaching one of its old documents "
-    "is NOT filing. Return ONLY a JSON array, same order: {\"id\",\"org\",\"verified\":true|false}.")
+SYS_WATCH = ("You verify whether an organization ITSELF FILED a public comment, from the letter text. This feeds a "
+    "public scoreboard, so a false yes is far worse than a false no. verified=true ONLY when the letter is the org's "
+    "own official filing: the org's letterhead, or an explicit 'I write on behalf of [the org]' as the FILER, or a "
+    "signature block naming an officer of the org. ALL of these are false: the letter cites/quotes/praises the org or "
+    "codes it developed ('the AMA, in collaboration with ACOG, designed...'); the writer is a MEMBER or Fellow of the "
+    "org writing personally; an old document from the org is attached to someone else's comment; anonymous submissions. "
+    "Also return \"evidence\": the EXACT phrase (copied verbatim from the letter) proving the org is the filer — "
+    "required when verified=true. Return ONLY a JSON array, same order: {\"id\",\"org\",\"verified\":true|false,\"evidence\":\"...\"}.")
+
+
+def _zone_text(db, cid, ctext):
+    """Letterhead + signature zones where a real filer's name must appear."""
+    body = (ctext or "").strip()
+    att = db.execute("select substr(extracted_text,1,600) from attachments where comment_id=? "
+                     "and length(extracted_text)>50 limit 1", (cid,)).fetchone()
+    return (body[:600] + " \n " + body[-600:] + " \n " + ((att[0] if att else "") or "")).lower()
+
+
+def _org_in_zone(db, cid, ctext, regs_org, name):
+    if not name: return False
+    n = name.lower()
+    hay = _zone_text(db, cid, ctext) + " " + (regs_org or "").lower()
+    return n in hay or (len(n) >= 14 and n[:14] in hay)
 
 
 def eff(db, cid, ctext, limit=9000):
@@ -119,10 +138,21 @@ def main(max_minutes=None):
         if r["has_attachments"] or (r["organization"] or "").strip() or ORGPAT.search(t[:1200]) or ORGPAT.search(t[-900:]):
             o_items.append({"id": r["id"], "regs_org_field": r["organization"] or "", "category": r["category"] or "",
                 "submitter": r["submitter_name"] or "", "opening": t[:1300], "closing": t[-800:] if len(t) > 2100 else ""})
-    run_batches(db, o_items, SYS_ORG,
-        lambda db,o: db.execute("UPDATE comments SET org_name=?, org_type=?, co_signers=?, signer_title=? WHERE id=?",
-            (o.get("org_name"), o.get("org_type") or "unknown", json.dumps(o.get("co_signers") or []),
-             o.get("signer_title") or "", o["id"])), deadline, "org")
+    by_id = {it["id"]: it for it in o_items}
+    def _apply_org(db, o):
+        it = by_id.get(o["id"], {})
+        name = o.get("org_name")
+        # mechanical guard: an extracted org must appear in the letterhead/signature
+        # zones (or the regs org field) — otherwise it's a citation, not the filer
+        # (this is exactly how ACOG got mis-credited on 2026-09-02)
+        row = db.execute("SELECT comment_text, organization FROM comments WHERE id=?", (o["id"],)).fetchone()
+        if name and row and not _org_in_zone(db, o["id"], row[0], row[1], name):
+            name = None
+        db.execute("UPDATE comments SET org_name=?, org_type=?, co_signers=?, signer_title=? WHERE id=?",
+            (name, (o.get("org_type") or "unknown") if name else "individual",
+             json.dumps(o.get("co_signers") or []) if name else "[]",
+             o.get("signer_title") or "" if name else "", o["id"]))
+    run_batches(db, o_items, SYS_ORG, _apply_org, deadline, "org")
 
     # 3. RFI asks for RFI-tagged comments missing them
     r_items = []
@@ -156,13 +186,39 @@ def main(max_minutes=None):
     # 4. verify watchlist scoreboard candidates (export_data.py inserts them)
     try:
         w_items = []
-        for r in db.execute("""SELECT w.watch_name, w.comment_id, c.comment_text FROM watch_hits w
+        for r in db.execute("""SELECT w.watch_name, w.comment_id, c.comment_text, c.organization,
+                                      c.submitter_name, c.has_attachments FROM watch_hits w
                                JOIN comments c ON c.id=w.comment_id WHERE w.verified IS NULL"""):
+            # mechanical pre-filter: a real society filing shows its name in the
+            # letterhead/signature zones. Anonymous + no attachment + name only
+            # mid-text = citation; reject without asking the LLM.
+            if not _org_in_zone(db, r["comment_id"], r["comment_text"], r["organization"], r["watch_name"]):
+                db.execute("UPDATE watch_hits SET verified=0 WHERE watch_name=? AND comment_id=?",
+                           (r["watch_name"], r["comment_id"]))
+                continue
             w_items.append({"id": r["comment_id"], "org": r["watch_name"],
-                            "opening": eff(db, r["comment_id"], r["comment_text"], 30000)[:900]})
-        run_batches(db, w_items, SYS_WATCH,
-            lambda db,o: db.execute("UPDATE watch_hits SET verified=? WHERE watch_name=? AND comment_id=?",
-                (1 if o.get("verified") else 0, o.get("org"), o["id"])), deadline, "watch_verify", batch=6)
+                            "opening": eff(db, r["comment_id"], r["comment_text"], 30000)[:900],
+                            "closing": (r["comment_text"] or "")[-500:],
+                            "anonymous_submitter": not (r["submitter_name"] or "").strip()
+                                                   or "anonymous" in (r["submitter_name"] or "").lower(),
+                            "has_attachment": bool(r["has_attachments"])})
+        db.commit()
+        def _apply_watch(db, o):
+            ok = bool(o.get("verified"))
+            if ok:
+                it = next((x for x in w_items if x["id"] == o["id"]), None)
+                # a genuine society filing is never an anonymous, attachment-less
+                # inline comment (the 5108 ACOG false positive was exactly that)
+                if it and it.get("anonymous_submitter") and not it.get("has_attachment"):
+                    ok = False
+                # evidence must be a real quote from the letter, or the yes is void
+                ev = (o.get("evidence") or "").strip().lower()
+                hay = ((it or {}).get("opening", "") + " " + (it or {}).get("closing", "")).lower()
+                if len(ev) < 10 or ev[:60] not in hay:
+                    ok = False
+            db.execute("UPDATE watch_hits SET verified=? WHERE watch_name=? AND comment_id=?",
+                       (1 if ok else 0, o.get("org"), o["id"]))
+        run_batches(db, w_items, SYS_WATCH, _apply_watch, deadline, "watch_verify", batch=6)
     except sqlite3.OperationalError:
         print("  watch_verify: no watch_hits table yet (export_data.py creates it)")
     db.close()
