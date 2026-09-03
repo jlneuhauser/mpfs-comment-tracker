@@ -69,6 +69,36 @@ a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
 .kpi .l{color:#bcd0cb;font-size:12.5px;margin-top:8px;font-weight:600}.kpi .x{color:#8ba39f;font-size:11.5px;margin-top:4px}
 .kpi.wh .v{color:#5fd3c9}.kpi.crit .v{color:var(--pink)}
 main{padding:8px 0 40px}
+.yoypair{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:stretch}
+@media(max-width:820px){.yoypair{grid-template-columns:1fr}}
+.ycard{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:22px 24px}
+.ycard .yr{font-size:11.5px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:9px}
+.ycard .big{font-family:var(--serif);font-size:48px;line-height:1;letter-spacing:-.02em;color:var(--ink)}
+.ycard.now .big{color:var(--teal)}
+.ycard .pct{font-size:14.5px;font-weight:600;margin-top:7px;color:var(--ink)}
+.ycard .d{color:var(--muted);font-size:12.5px;margin-top:6px;line-height:1.5}
+.yoymult{display:flex;flex-direction:column;justify-content:center;align-items:center;padding:0 6px}
+.yoymult .x{font-family:var(--serif);font-size:40px;color:var(--magenta);line-height:1}
+.yoymult .xl{font-size:11.5px;color:var(--muted);text-align:center;margin-top:5px;max-width:105px}
+.yoynote{color:var(--muted);font-size:12.5px;margin:10px 0 22px}
+.yoytab{width:100%;border-collapse:collapse}
+.yoytab th,.yoytab td{padding:10px 13px;text-align:center;font-size:13px;border-bottom:1px solid var(--grid)}
+.yoytab th{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);background:rgba(6,145,139,.05);line-height:1.35}
+.yoytab td:first-child,.yoytab th:first-child{text-align:left;font-weight:600}
+.yoytab tr:last-child td{border-bottom:none}
+.yoytab td.hot{color:var(--teal);font-weight:700}
+.yoytab td.zero{color:var(--baseline)}
+.yoytab td.watch{color:var(--magenta);font-weight:600;font-size:11px;letter-spacing:.05em}
+.yoystrip{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:22px}
+@media(max-width:820px){.yoystrip{grid-template-columns:1fr}}
+.yoystrip .scard{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:20px 24px}
+.yoystrip h3{font-family:var(--serif);font-weight:400;font-size:18px;margin:0 0 10px;color:var(--ink)}
+.yoystrip .srow{display:flex;gap:24px;align-items:baseline}
+.yoystrip .n{font-family:var(--serif);font-size:34px;line-height:1;color:var(--ink)}
+.yoystrip .n.now{color:var(--teal)}
+.yoystrip .cap{font-size:12px;color:var(--muted);margin-top:4px}
+.yoystrip p{font-size:13px;color:var(--text-2);margin:10px 0 0;line-height:1.55}
+.yoystrip p b{color:var(--ink)}
 .layer{border-top:2px solid var(--ink);margin:46px 0 26px;padding-top:16px}
 .layer .tag{font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--teal)}
 .layer h2{font-family:var(--serif);font-weight:400;font-size:34px;line-height:1.08;margin:6px 0 8px;color:var(--ink)}
@@ -240,6 +270,16 @@ footer .wordmark{margin-bottom:12px}footer .fnote{font-size:13px;color:#9fb8b3;m
       <div style="flex:2;min-width:260px"><div class="stack" id="tierStack"></div><div class="stackleg" id="tierLeg"></div></div>
     </div>
     <div class="push" id="pushGrid"></div></div></section>
+
+  <section id="yoy" style="display:none"><div class="sec-head"><p class="eyebrow">Then vs now</p><h2 class="sec-h">A year ago, women's health was barely in this record</h2>
+    <p class="hint">We read every comment on last year's rule the same way we read this year's, with the same definition and a full audit of both. This is the change, measured honestly.</p></div>
+    <div class="yoypair" id="yoyPair"></div>
+    <p class="yoynote">Counts are audited: every letter we tagged was independently re-reviewed and disputes were settled on the full text.</p>
+    <div class="panel" style="padding:0;overflow-x:auto"><table class="yoytab" id="yoyTab"></table></div>
+    <p class="yoynote">Menopause and sex-based equity appear nowhere in either proposed rule. Every one of those comments is unprompted.</p>
+    <div class="yoystrip" id="yoyStrip"></div>
+    <div class="method" style="margin-top:14px"><p><b>How we measure.</b> Both years use the same definition: a comment counts when it carries substantive women's health content, argues a women's health consequence, or is filed by a women's health organization. Every positive in both years was independently re-reviewed, and every dispute was settled against the full letter. The full methodology publishes with our report after September 14.</p></div>
+  </section>
 
   <section><div class="sec-head"><p class="eyebrow">Keyword tracker</p><h2 class="sec-h">Women's-health terms in the comments</h2>
     <p class="hint">How often each term appears across the comments submitted so far. Click a keyword to read those comments.</p></div>
@@ -443,6 +483,34 @@ function renderStakes(){$("#stakesGrid").innerHTML=STK.slice(0,stakesShown).map(
 renderStakes();$("#stakesMore").onclick=()=>{stakesShown=STK.length;renderStakes();};
 
 bars($("#topicBars"),W.topics.map(t=>({label:t.label,count:t.count,key:t.key})),{color:"var(--teal)",onClick:i=>applyFilter({list:{field:'topics',value:i.key,label:i.label}})});
+if(DATA.yoy){
+  const Y=DATA.yoy,B=Y.y2025,fmt=n=>n.toLocaleString();
+  $("#yoy").style.display="";
+  $("#yoyPair").innerHTML=
+    `<div class="ycard"><div class="yr">Last year &middot; CY2026 rule, closed</div>`+
+    `<div class="big">${B.voice}</div><div class="pct">${B.pct}% of ${fmt(B.total)} comments</div>`+
+    `<div class="d">Women's health voices in the entire record, including every women's health organization that filed on any topic.</div></div>`+
+    `<div class="yoymult"><div class="x">${Y.mult}x</div><div class="xl">more of the record, so far</div></div>`+
+    `<div class="ycard now"><div class="yr">This year &middot; CY2027 rule, ${Y.days_left>0?"open":"closed"}</div>`+
+    `<div class="big">${fmt(Y.now.voice)}</div><div class="pct">${Y.now.pct}% of ${fmt(Y.now.total)} comments${Y.days_left>0?" and counting":""}</div>`+
+    `<div class="d">Same definition, same audit.${Y.days_left>0?" The record stays open through September 14.":""}</div></div>`;
+  $("#yoyTab").innerHTML=
+    `<tr><th>Term</th><th>Last year's<br>proposed rule</th><th>Last year's<br>comments</th><th>CMS final rule<br>answer</th><th>This year's<br>proposed rule</th><th>This year's<br>comments${Y.days_left>0?" so far":""}</th><th>This year's<br>final rule</th></tr>`+
+    Y.terms.map(t=>{
+      const c=v=>v?`<td>${fmt(v)}</td>`:`<td class="zero">0</td>`;
+      return `<tr><td>${esc(t.label)}</td>${c(t.p25)}${c(t.c25)}${c(t.f26)}${c(t.p26)}`+
+        `<td class="hot">${fmt(t.c26)}</td><td class="watch">NOVEMBER</td></tr>`;
+    }).join("");
+  $("#yoyStrip").innerHTML=
+    `<div class="scard"><h3>Women's health societies on the record</h3><div class="srow">`+
+    `<div><div class="n">${B.societies_filed} of ${B.societies_total}</div><div class="cap">last year, final count</div></div>`+
+    `<div><div class="n now">${Y.societies_now} of ${Y.societies_total}</div><div class="cap">this year${Y.days_left>0?", so far":""}</div></div></div>`+
+    `<p>Last year most societies filed in the final days before the deadline. The board below updates as verified letters land.${Y.days_left>0?` <b>${Y.days_left} day${Y.days_left==1?"":"s"} remain.</b>`:""}</p></div>`+
+    `<div class="scard"><h3>What CMS answered last year</h3><div class="srow">`+
+    `<div><div class="n">${fmt(B.cms_answers_total)}</div><div class="cap">formal answers to commenters</div></div>`+
+    `<div><div class="n now">${B.cms_answers_wh}</div><div class="cap">touched women's health</div></div></div>`+
+    `<p>One changed policy: maternity codes were shielded from a payment cut after commenters asked. CMS answers what the record raises. <b>In November, we count again.</b></p></div>`;
+}
 $("#kwrap").innerHTML=(DATA.keywords||[]).map((k,x)=>`<span class="kw" data-x="${x}">${esc(k.label)} <b>${k.count}</b></span>`).join("");
 $("#kwrap").querySelectorAll(".kw").forEach(el=>el.onclick=()=>applyFilter({kw:DATA.keywords[+el.dataset.x].label}));
 

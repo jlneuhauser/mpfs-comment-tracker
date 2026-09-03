@@ -438,6 +438,40 @@ def main():
     mod25_block={"total":mod25_total,"wh":mod25_wh,"camp":mod25_camp,
         "by_spec":[{"label":s,"count":n} for s,n in mod25_spec.most_common(10)]}
 
+    # ---- Then vs now: frozen audited 2025 baseline + live 2026 side ----------
+    yoy=None
+    try:
+        base=json.load(open(os.path.join(BASE,"yoy_baseline.json")))
+        wh_now=sum(tier_counts[t] for t in ("core","stakes"))
+        extra=0
+        for xid in base.get("voice_extra_ids",[]):
+            r=db.execute("SELECT llm_tier FROM comments WHERE id=?",(xid,)).fetchone()
+            if r and (r["llm_tier"] or "general") not in ("core","stakes"): extra+=1
+        voice_now=wh_now+extra
+        terms_out=[]
+        for t in base["terms"]:
+            s=t["like"].replace("'","''")
+            c26=db.execute(
+                f"""SELECT count(*) FROM comments c WHERE lower(c.comment_text) LIKE '%{s}%'
+                    OR c.id IN (SELECT a.comment_id FROM attachments a
+                                WHERE lower(a.extracted_text) LIKE '%{s}%')""").fetchone()[0]
+            terms_out.append({"label":t["label"],"p25":t["p25"],"c25":t["c25"],
+                              "f26":t["f26"],"p26":t["p26"],"c26":c26})
+        soc_now=sum(1 for w in watch_out if w["group"]=="wh_society" and w["filed"])
+        import datetime as _dt
+        try:
+            _dl=max(0,( _dt.date.fromisoformat(TAX["comment_deadline"])-_dt.date.today()).days)
+        except Exception:
+            _dl=0
+        yoy={"y2025":base["y2025"],
+             "now":{"total":total,"voice":voice_now,
+                    "pct":round(100.0*voice_now/max(total,1),1)},
+             "mult":round((voice_now/max(total,1))/(base["y2025"]["voice"]/base["y2025"]["total"])),
+             "terms":terms_out,"societies_now":soc_now,
+             "societies_total":base["y2025"]["societies_total"],"days_left":_dl}
+    except Exception as e:
+        print("yoy block skipped:",e)
+
     data={
         "meta":{"total":total,"wh_flagged":wh,"rrm":watch_rrm,"root_cause":watch_root,
             "docket":TAX["docket"],"rule":TAX["rule"],"deadline":TAX["comment_deadline"],
@@ -475,6 +509,7 @@ def main():
         "themes":themes_out,
         "rfis":[t for t in themes_out if t["rfi"]],
         "keywords":[{"label":lab,"count":kw_counts.get(lab,0)} for _,lab in KEYWORDS if kw_counts.get(lab,0)>0],
+        "yoy":yoy,
         "plain_map":{THEME_META[k]["label"]:PLAIN.get(k,THEME_META[k]["label"]) for k in THEME_META},
         "rows":out_rows,
     }

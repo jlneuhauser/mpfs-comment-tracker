@@ -1,0 +1,21 @@
+{
+  "note": "Frozen, audited 2025 baseline for the then-vs-now tracker section. 2025 docket CMS-2025-0304 (CY2026 rule) closed Sept 2025; these numbers are final and audited (blind re-review of every positive, disputes adjudicated on full text). Do not edit without re-running the audit. Rule term counts are raw mentions in the rule text; comment counts are comments mentioning the term, attachments included.",
+  "y2025": {
+    "total": 14103,
+    "voice": 41,
+    "content": 39,
+    "pct": 0.29,
+    "societies_filed": 7,
+    "societies_total": 18,
+    "cms_answers_total": 961,
+    "cms_answers_wh": 4
+  },
+  "terms": [
+    {"label": "Menopause",        "like": "menopaus",   "p25": 0, "c25": 6,  "f26": 0, "p26": 0},
+    {"label": "Maternal",         "like": "maternal",   "p25": 0, "c25": 23, "f26": 0, "p26": 1},
+    {"label": "Postpartum",       "like": "postpartum", "p25": 0, "c25": 14, "f26": 0, "p26": 0},
+    {"label": "Maternity",        "like": "maternity",  "p25": 6, "c25": 58, "f26": 8, "p26": 10},
+    {"label": "Sex-based equity", "like": "sex-based",  "p25": 0, "c25": 0,  "f26": 0, "p26": 0}
+  ],
+  "voice_extra_ids": ["CMS-2026-2377-12178"]
+}
