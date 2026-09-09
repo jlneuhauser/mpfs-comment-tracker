@@ -51,6 +51,7 @@
       "label": "Women's-health companies",
       "show_absent": false,
       "orgs": [
+        {"name": "Medicines360", "short": "Medicines360", "aliases": ["Medicines 360"]},
         {"name": "Maven Clinic", "short": "Maven", "aliases": ["Maven"]},
         {"name": "Visana Health", "short": "Visana", "aliases": ["Visana"]},
         {"name": "Midi Health", "short": "Midi", "aliases": ["Midi"]},
