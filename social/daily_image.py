@@ -169,7 +169,7 @@ const {{ chromium }} = require('playwright');
 def build(angle, date, out):
     dl = days_left(date)
     src_base = (f"<b>Source:</b> every public comment filed on Medicare's proposed 2027 "
-                f"physician payment rule (docket CMS-2026-2377), read and tagged by 51&. "
+                f"physician payment rule (docket CMS-2026-2377), analyzed and tagged by 51&. "
                 f"{date.strftime('%B %-d, %Y')}. Live tracker: <b>tracker.51and.com</b>")
     if angle == "keywords":
         s = stats_keywords()
@@ -252,7 +252,7 @@ def build(angle, date, out):
             cta='On these issues, one comment can be the record. File by 11:59 PM ET tomorrow at <b>medicarefeeschedule.51and.com</b>'
                 if dl >= 1 else 'We put these on the record. Follow what CMS does with them at <b>tracker.51and.com</b>',
             source=(f"<b>Source:</b> every public comment and attachment filed on Medicare's proposed 2027 "
-                    f"physician payment rule (docket CMS-2026-2377), read in full and tagged by 51&. "
+                    f"physician payment rule (docket CMS-2026-2377), analyzed in full and tagged by 51&. "
                     f"{date.strftime('%B %-d, %Y')}. Live tracker: <b>tracker.51and.com</b>"))
     else:
         raise SystemExit(f"unknown angle {angle}")
