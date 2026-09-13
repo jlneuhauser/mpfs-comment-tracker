@@ -61,6 +61,40 @@ def stats_meta():
     return r
 
 
+def stats_gaps():
+    """Full-text gap counts: comment_text plus extracted attachment letters.
+    Reproduces the 2026-09-13 'empty records' analysis (24-hours-left post)."""
+    db = db26()
+    total = db.execute("SELECT count(*) FROM comments").fetchone()[0]
+    m25 = db.execute("SELECT count(*) FROM comments WHERE llm_provisions LIKE '%modifier_25%'").fetchone()[0]
+    parts = {cid: [t] for cid, t in db.execute(
+        "SELECT id, lower(coalesce(comment_text,'')) FROM comments")}
+    for cid, at in db.execute("SELECT comment_id, lower(coalesce(extracted_text,'')) FROM attachments"):
+        if cid in parts:
+            parts[cid].append(at)
+    texts = [' '.join(p) for p in parts.values()]
+
+    def n(*subs):
+        return sum(1 for t in texts if any(s in t for s in subs))
+
+    gyn_gap = sum(1 for t in texts if re.search(
+        r'(sex[- ]based|sex[- ]specific|gender[- ]based).{0,60}(disparit|valuat|reimburs|pay)', t)
+        or ('gynecolog' in t and ('undervalu' in t or 'underpaid' in t or 'under-valu' in t)))
+    return {"total": total, "rows": [
+        ("One payment cut", m25, "dim"),
+        ("Midwives", n("midwi"), "hot"),
+        ("GYN surgery pay gap", gyn_gap, "hot"),
+        ("Menopause", n("menopaus"), "hot"),
+        ("Osteoporosis", n("osteoporos"), "hot"),
+        ("Postpartum monitoring", sum(1 for cid, prov in db.execute(
+            "SELECT id, coalesce(llm_provisions,'') FROM comments")
+            if 'remote_monitoring' in prov and any(
+                s in ' '.join(parts.get(cid, [''])) for s in ('postpartum', 'matern', 'pregnan'))), "hot"),
+        ("Pelvic exam supply cut", n("sa051"), "hot"),
+        ("VBAC", n("vbac"), "hot"),
+    ]}
+
+
 def days_left(date):
     return max(0, (datetime.date(2026, 9, 14) - date).days)
 
@@ -196,6 +230,30 @@ def build(angle, date, out):
                  f'<div class="hlab">national women\'s health societies on the record</div></div>'),
             cta=f'The record closes in <b>{dl} days</b>. Follow the board live at <b>tracker.51and.com</b>',
             source=src_base)
+    elif angle == "gaps":
+        s = stats_gaps()
+        mx = max(n for _, n, _ in s["rows"]) or 1
+        bars = "".join(
+            f'<div class="brow"><div class="blab">{lab}</div><div class="btrack">'
+            f'<div class="bfill{" hot" if kind == "hot" else ""}" style="width:{max(n/mx*100,0.5):.2f}%"></div></div>'
+            f'<div class="bval">{n:,}</div></div>'
+            for lab, n, kind in s["rows"])
+        closing = ("The record closes tomorrow night." if dl == 1 else
+                   "The record is closed." if dl == 0 else
+                   f"The record closes in {dl} days.")
+        html = PAGE.format(tre=FONT("VTC-Tre.woff2"), ur=FONT("UncutSans-Regular.woff2"),
+            us=FONT("UncutSans-Semibold.woff2"), INK=INK, WHITE=WHITE, VGREEN=VGREEN,
+            SOFT=SOFT, BERRY=BERRY, hsize=78,
+            label="24 hours left" if dl == 1 else "The 51&amp; comment tracker",
+            headline=f'{closing} <span class="acc">Women\'s health is barely in it.</span>',
+            sub=(f"We read all {s['total']:,} comments filed on Medicare's 2027 physician payment rule, "
+                 f"including every attached letter. How many address each women's health decision on the table:"),
+            viz=f'<div class="bars">{bars}</div>',
+            cta='On these issues, one comment can be the record. File by 11:59 PM ET tomorrow at <b>medicarefeeschedule.51and.com</b>'
+                if dl >= 1 else 'We put these on the record. Follow what CMS does with them at <b>tracker.51and.com</b>',
+            source=(f"<b>Source:</b> every public comment and attachment filed on Medicare's proposed 2027 "
+                    f"physician payment rule (docket CMS-2026-2377), read in full and tagged by 51&. "
+                    f"{date.strftime('%B %-d, %Y')}. Live tracker: <b>tracker.51and.com</b>"))
     else:
         raise SystemExit(f"unknown angle {angle}")
     render(html, out)
