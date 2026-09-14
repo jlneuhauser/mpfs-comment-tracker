@@ -18,6 +18,7 @@
         {"name": "National Association of Nurse Practitioners in Women's Health", "short": "NPWH", "aliases": ["NPWH", "Nurse Practitioners in Women's Health"]},
         {"name": "The Menopause Society", "short": "Menopause Society", "aliases": ["North American Menopause Society", "NAMS"]},
         {"name": "The Perimenopause Society", "short": "Perimenopause Society", "aliases": ["Perimenopause Society"]},
+        {"name": "National Menopause Foundation", "short": "Nat'l Menopause Fdn", "aliases": ["Menopause Foundation"]},
         {"name": "Policy Center for Maternal Mental Health", "short": "PC-MMH", "aliases": ["Maternal Mental Health"]},
         {"name": "March of Dimes", "short": "March of Dimes", "aliases": []},
         {"name": "National Partnership for Women & Families", "short": "Nat'l Partnership", "aliases": ["National Partnership for Women and Families"]},
