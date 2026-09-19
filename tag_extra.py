@@ -60,6 +60,17 @@ SYS_WATCH = ("You verify whether an organization ITSELF FILED a public comment, 
     "Also return \"evidence\": the EXACT phrase (copied verbatim from the letter) proving the org is the filer — "
     "required when verified=true. Return ONLY a JSON array, same order: {\"id\",\"org\",\"verified\":true|false,\"evidence\":\"...\"}.")
 
+SYS_COSIGN = ("You verify whether an organization SIGNED ON to a joint/coalition comment letter that another "
+    "organization filed. This feeds a public scoreboard, so a false yes is far worse than a false no. "
+    "verified=true ONLY when the org appears as an actual signatory of THIS letter: listed among the undersigned "
+    "organizations, in the signature block, or in an explicit list of co-signing/joining organizations. ALL of "
+    "these are false: the letter merely cites, quotes, thanks, or references the org or its work; the org is "
+    "discussed as a subject; a document from the org is attached to someone else's comment without the org "
+    "signing. Also return \"evidence\": the EXACT phrase (copied verbatim from the letter) showing the org in "
+    "the signatory list - required when verified=true. "
+    "Return ONLY a JSON array, same order (echo id exactly as given): "
+    "{\"id\",\"org\",\"verified\":true|false,\"evidence\":\"...\"}.")
+
 
 def _zone_text(db, cid, ctext):
     """Letterhead + signature zones where a real filer's name must appear."""
@@ -120,6 +131,78 @@ def main(max_minutes=None):
         try: db.execute(f"ALTER TABLE comments ADD COLUMN {col}")
         except sqlite3.OperationalError: pass
 
+    # 0. verify watchlist scoreboard candidates (export_data.py inserts them).
+    # Runs FIRST so this small, scoreboard-critical pass is never starved by
+    # the heavier extraction passes below. via='filed' means the org itself
+    # filed; via='cosigner' (verified separately since 2026-09-19) means the
+    # org appears in another organization's joint-letter signatory list -
+    # on the record without being the filer.
+    try:
+        w_items = []; cs_items = []
+        for r in db.execute("""SELECT w.watch_name, w.comment_id, w.via, c.comment_text, c.organization,
+                                      c.submitter_name, c.has_attachments FROM watch_hits w
+                               JOIN comments c ON c.id=w.comment_id WHERE w.verified IS NULL"""):
+            if (r["via"] or "filed") == "cosigner":
+                full = eff(db, r["comment_id"], r["comment_text"], 30000)
+                # mechanical pre-filter: the org's name must appear somewhere in
+                # the letter at all (signatory lists sit deep in attachments, so
+                # the narrow letterhead/signature zone check does not apply here)
+                if r["watch_name"].lower() not in full.lower():
+                    db.execute("UPDATE watch_hits SET verified=0 WHERE watch_name=? AND comment_id=?",
+                               (r["watch_name"], r["comment_id"]))
+                    continue
+                cs_items.append({"id": r["comment_id"] + "::" + r["watch_name"], "org": r["watch_name"],
+                                 "opening": full[:900], "closing": full[-3500:]})
+                continue
+            # mechanical pre-filter: a real society filing shows its name in the
+            # letterhead/signature zones. Anonymous + no attachment + name only
+            # mid-text = citation; reject without asking the LLM.
+            if not _org_in_zone(db, r["comment_id"], r["comment_text"], r["organization"], r["watch_name"]):
+                db.execute("UPDATE watch_hits SET verified=0 WHERE watch_name=? AND comment_id=?",
+                           (r["watch_name"], r["comment_id"]))
+                continue
+            w_items.append({"id": r["comment_id"], "org": r["watch_name"],
+                            "opening": eff(db, r["comment_id"], r["comment_text"], 30000)[:900],
+                            "closing": (r["comment_text"] or "")[-500:],
+                            "anonymous_submitter": not (r["submitter_name"] or "").strip()
+                                                   or "anonymous" in (r["submitter_name"] or "").lower(),
+                            "has_attachment": bool(r["has_attachments"])})
+        db.commit()
+        def _apply_watch(db, o):
+            ok = bool(o.get("verified"))
+            if ok:
+                it = next((x for x in w_items if x["id"] == o["id"]), None)
+                # a genuine society filing is never an anonymous, attachment-less
+                # inline comment (the 5108 ACOG false positive was exactly that)
+                if it and it.get("anonymous_submitter") and not it.get("has_attachment"):
+                    ok = False
+                # evidence must be a real quote from the letter, or the yes is void
+                ev = (o.get("evidence") or "").strip().lower()
+                hay = ((it or {}).get("opening", "") + " " + (it or {}).get("closing", "")).lower()
+                if len(ev) < 10 or ev[:60] not in hay:
+                    ok = False
+            db.execute("UPDATE watch_hits SET verified=? WHERE watch_name=? AND comment_id=?",
+                       (1 if ok else 0, o.get("org"), o["id"]))
+        run_batches(db, w_items, SYS_WATCH, _apply_watch, deadline, "watch_verify", batch=6)
+        cs_by = {x["id"]: x for x in cs_items}
+        def _apply_cosign(db, o):
+            ok = bool(o.get("verified"))
+            it = cs_by.get(o["id"])
+            cid, _, wname = (o["id"] or "").partition("::")
+            if not it or not cid or not wname:
+                return
+            if ok:
+                # evidence must be a real quote from the text the model saw
+                ev = (o.get("evidence") or "").strip().lower()
+                hay = (it.get("opening", "") + " " + it.get("closing", "")).lower()
+                if len(ev) < 6 or ev[:60] not in hay:
+                    ok = False
+            db.execute("UPDATE watch_hits SET verified=? WHERE watch_name=? AND comment_id=?",
+                       (1 if ok else 0, wname, cid))
+        run_batches(db, cs_items, SYS_COSIGN, _apply_cosign, deadline, "watch_cosign", batch=6)
+    except sqlite3.OperationalError:
+        print("  watch_verify: no watch_hits table yet (export_data.py creates it)")
+
     # 1. G-code stance for untagged candidates
     g_items = []
     for r in db.execute("SELECT id, comment_text, llm_summary FROM comments WHERE gcode_stance IS NULL"):
@@ -130,14 +213,32 @@ def main(max_minutes=None):
         lambda db,o: db.execute("UPDATE comments SET gcode_stance=?, gcode_note=? WHERE id=?",
             (o.get("gcode_stance") or "unclear", o.get("note") or "", o["id"])), deadline, "gcode")
 
+    # 2a. one-time re-queue (2026-09-19): the closing window shown to the org
+    # extractor used to be 800 chars, which truncated or missed multi-org
+    # signatory lists on joint letters. The window is now 3000; re-queue org
+    # letters whose previously-unseen tail region looks like a signature block
+    # so their co_signers get re-extracted (idempotent: org_type=NULL rows are
+    # simply picked up by the pass below, and leftovers carry across runs).
+    db.execute("CREATE TABLE IF NOT EXISTS maint_flags(k TEXT PRIMARY KEY)")
+    if not db.execute("SELECT 1 FROM maint_flags WHERE k='cosign_reextract_v1'").fetchone():
+        requeue = []
+        for r in db.execute("SELECT id, comment_text FROM comments WHERE org_name IS NOT NULL AND org_name != ''"):
+            t = eff(db, r["id"], r["comment_text"], 30000)
+            if len(t) > 2100 and len(ORGPAT.findall(t[-3000:-800])) >= 2:
+                requeue.append((r["id"],))
+        db.executemany("UPDATE comments SET org_type=NULL WHERE id=?", requeue)
+        db.execute("INSERT INTO maint_flags(k) VALUES('cosign_reextract_v1')")
+        db.commit()
+        print(f"  cosign_reextract_v1: re-queued {len(requeue)} org letters for co-signer re-extraction")
+
     # 2. org extraction for untyped candidates
     o_items = []
     for r in db.execute("""SELECT id, organization, category, submitter_name, comment_text, has_attachments
                            FROM comments WHERE org_type IS NULL"""):
         t = eff(db, r["id"], r["comment_text"], 30000)
-        if r["has_attachments"] or (r["organization"] or "").strip() or ORGPAT.search(t[:1200]) or ORGPAT.search(t[-900:]):
+        if r["has_attachments"] or (r["organization"] or "").strip() or ORGPAT.search(t[:1200]) or ORGPAT.search(t[-3100:]):
             o_items.append({"id": r["id"], "regs_org_field": r["organization"] or "", "category": r["category"] or "",
-                "submitter": r["submitter_name"] or "", "opening": t[:1300], "closing": t[-800:] if len(t) > 2100 else ""})
+                "submitter": r["submitter_name"] or "", "opening": t[:1300], "closing": t[-3000:] if len(t) > 2100 else ""})
     by_id = {it["id"]: it for it in o_items}
     def _apply_org(db, o):
         it = by_id.get(o["id"], {})
@@ -183,44 +284,6 @@ def main(max_minutes=None):
             (json.dumps({"engages": bool(o.get("engages")), "qs": o.get("qs") or {}}, ensure_ascii=False), o["id"])),
         deadline, "cpt_rfi_qa", batch=8)
 
-    # 4. verify watchlist scoreboard candidates (export_data.py inserts them)
-    try:
-        w_items = []
-        for r in db.execute("""SELECT w.watch_name, w.comment_id, c.comment_text, c.organization,
-                                      c.submitter_name, c.has_attachments FROM watch_hits w
-                               JOIN comments c ON c.id=w.comment_id WHERE w.verified IS NULL"""):
-            # mechanical pre-filter: a real society filing shows its name in the
-            # letterhead/signature zones. Anonymous + no attachment + name only
-            # mid-text = citation; reject without asking the LLM.
-            if not _org_in_zone(db, r["comment_id"], r["comment_text"], r["organization"], r["watch_name"]):
-                db.execute("UPDATE watch_hits SET verified=0 WHERE watch_name=? AND comment_id=?",
-                           (r["watch_name"], r["comment_id"]))
-                continue
-            w_items.append({"id": r["comment_id"], "org": r["watch_name"],
-                            "opening": eff(db, r["comment_id"], r["comment_text"], 30000)[:900],
-                            "closing": (r["comment_text"] or "")[-500:],
-                            "anonymous_submitter": not (r["submitter_name"] or "").strip()
-                                                   or "anonymous" in (r["submitter_name"] or "").lower(),
-                            "has_attachment": bool(r["has_attachments"])})
-        db.commit()
-        def _apply_watch(db, o):
-            ok = bool(o.get("verified"))
-            if ok:
-                it = next((x for x in w_items if x["id"] == o["id"]), None)
-                # a genuine society filing is never an anonymous, attachment-less
-                # inline comment (the 5108 ACOG false positive was exactly that)
-                if it and it.get("anonymous_submitter") and not it.get("has_attachment"):
-                    ok = False
-                # evidence must be a real quote from the letter, or the yes is void
-                ev = (o.get("evidence") or "").strip().lower()
-                hay = ((it or {}).get("opening", "") + " " + (it or {}).get("closing", "")).lower()
-                if len(ev) < 10 or ev[:60] not in hay:
-                    ok = False
-            db.execute("UPDATE watch_hits SET verified=? WHERE watch_name=? AND comment_id=?",
-                       (1 if ok else 0, o.get("org"), o["id"]))
-        run_batches(db, w_items, SYS_WATCH, _apply_watch, deadline, "watch_verify", batch=6)
-    except sqlite3.OperationalError:
-        print("  watch_verify: no watch_hits table yet (export_data.py creates it)")
     db.close()
 
 
