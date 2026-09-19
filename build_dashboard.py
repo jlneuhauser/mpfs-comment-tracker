@@ -434,7 +434,7 @@ const socOff=socAll.filter(w=>!w.filed);
 const thinRfis=(DATA.rfi_map||[]).filter(r=>r.wh<=1);
 $("#pushGrid").innerHTML=[
  {big:fmt(M25.wh)+" of "+fmt(M25.total),p:"comments on the <b>same-day cut</b> connect it to women's care."},
- {big:fmt(socOn.length)+" of "+fmt(socAll.length),p:"watched women's-health societies have <b>filed so far</b>. Most major letters land in the final week."},
+ {big:fmt(socOn.length)+" of "+fmt(socAll.length),p:"watched women's-health societies are <b>on the record so far</b> — filed their own letter or co-signed a joint one."},
  {big:thinRfis.length+" of 5 RFIs",p:"have almost <b>no women's-health comments</b> yet. RFIs shape what CMS takes up next."}
 ].map(c=>`<div class="pcard"><div class="big">${c.big}</div><div class="p">${c.p} <a href="https://medicarefeeschedule.51and.com/file" target="_blank" rel="noopener">Add your voice &rarr;</a></div></div>`).join("");
 
