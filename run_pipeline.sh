@@ -6,12 +6,18 @@ cd "$(dirname "$0")"
 # Per-step time budgets (minutes). Every step lands partial progress and resumes
 # next run, so the whole pipeline ALWAYS finishes well under GitHub's 6h job
 # limit instead of being cancelled with nothing saved (the 8/27–8/30 failure
-# mode). Total ≈ 180+40+90 = 310 min + fixed steps, vs the 340-min step timeout
-# in daily.yml. Override via env for local/manual runs (empty = unlimited).
-ING_MIN="${INGEST_MAX_MINUTES:-180}"
-PDF_MIN="${PDF_MAX_MINUTES:-40}"
-TAG_MIN="${TAG_MAX_MINUTES:-90}"
-EXTRA_MIN="${EXTRA_MAX_MINUTES:-25}"
+# mode). 2026-09-19: defaults trimmed 180/40/90/25 -> 120/30/70/20 — with the
+# post-close backlog maxing every step, the old sum (335 min budgets + hard_stop
+# grace + fixed steps) overran the 340-min step timeout in daily.yml three runs
+# in a row (9/17 PM, 9/18 PM, 9/19 AM), killing the job BEFORE the Supabase
+# sync ever ran. New worst case ≈ 240 budgets + ≤55 grace + ~35 fixed ≈ 330,
+# so every run reaches steps 5–7 and the feed keeps updating; leftovers carry
+# to the next run as designed. Override via env for local/manual runs
+# (empty = unlimited).
+ING_MIN="${INGEST_MAX_MINUTES:-120}"
+PDF_MIN="${PDF_MAX_MINUTES:-30}"
+TAG_MIN="${TAG_MAX_MINUTES:-70}"
+EXTRA_MIN="${EXTRA_MAX_MINUTES:-20}"
 
 # hard_stop = backstop around the in-script budgets: if a step hangs past its
 # budget (stuck HTTP call, OCR runaway), SIGTERM it and CONTINUE the pipeline,
