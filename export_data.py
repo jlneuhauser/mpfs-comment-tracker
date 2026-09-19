@@ -377,7 +377,8 @@ def main():
                 for cid,via,orig in hits:
                     db.execute("INSERT OR IGNORE INTO watch_hits(watch_name,comment_id,via,verified) VALUES(?,?,?,NULL)",
                                (o["name"],cid,via))
-                ver=db.execute("SELECT comment_id,via FROM watch_hits WHERE watch_name=? AND verified=1 ORDER BY comment_id LIMIT 1",
+                ver=db.execute("SELECT comment_id,via FROM watch_hits WHERE watch_name=? AND verified=1 "
+                               "ORDER BY CASE WHEN via='filed' THEN 0 ELSE 1 END, comment_id LIMIT 1",
                                (o["name"],)).fetchone()
                 cid,via=(ver[0],ver[1]) if ver else (None,None)
                 watch_out.append({"name":o["name"],"short":o.get("short",o["name"]),"group":g["key"],
