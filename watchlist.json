@@ -25,7 +25,8 @@
         {"name": "National Birth Equity Collaborative", "short": "NBEC", "aliases": ["NBEC"]},
         {"name": "Black Mamas Matter Alliance", "short": "BMMA", "aliases": ["BMMA"]},
         {"name": "HealthyWomen", "short": "HealthyWomen", "aliases": ["Healthy Women"]},
-        {"name": "Women's Health Access Matters", "short": "WHAM", "aliases": ["WHAM"]}
+        {"name": "Women's Health Access Matters", "short": "WHAM", "aliases": ["WHAM"]},
+        {"name": "WomenHeart", "short": "WomenHeart", "aliases": ["National Coalition for Women with Heart Disease"]}
       ]
     },
     {
